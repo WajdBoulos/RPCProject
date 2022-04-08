@@ -6,6 +6,7 @@ set(SRC_LIST
         node.c
         queue.c
         server.c
-        wrappers.c)
+        wrappers.c
+        client.c)
 
 add_library(TARGET ${SRC_LIST})
