@@ -8,6 +8,7 @@ set(SRC_LIST
         server.c
         wrappers.c
         client.c
-        RPC.c)
+        RPC.c
+        RPCImpl.c)
 
 add_library(TARGET ${SRC_LIST})

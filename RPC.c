@@ -3,26 +3,9 @@
 //
 
 #include "RPC.h"
-
+#include "RPCImpl.h"
 #include <string.h>
 #include <stdint.h>
-
-#define RPC_ARGS_SIZE 20
-typedef enum
-{
-    CALL_FUNCTION,
-} RPC_Command;
-
-typedef struct
-{
-    uint32_t cmd;
-    uint32_t funcId;
-    uint32_t callBackId;
-    uint32_t argSize;
-    uint32_t retSize;
-    uint32_t packetId;
-    uint8_t argBuf[RPC_ARGS_SIZE];
-} RPC_Packet;
 
 void* (*s_funcList[MAX_RPC_FUNCS]) (void *args);
 
