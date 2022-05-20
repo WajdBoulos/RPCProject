@@ -1,14 +1,24 @@
 project (RPCProject)
 
-set(TARGET RPC)
+#set(TARGET RPC)
+#
+#set(SRC_LIST
+#        node.c
+#        queue.c
+#        server.c
+#        wrappers.c
+#        client.c
+#        RPC.c
+#        RPCImpl.c)
 
-set(SRC_LIST
+add_executable(server
         node.c
         queue.c
         server.c
-        wrappers.c
-        client.c
-        RPC.c
-        RPCImpl.c)
+        wrappers.c)
 
-add_library(TARGET ${SRC_LIST})
+add_executable(client
+        node.c
+        queue.c
+        wrappers.c
+        client.c)
