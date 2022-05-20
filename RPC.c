@@ -53,7 +53,5 @@ RPC_ReturnStatus RPC_CallFunction_Perform(int funcId, int callBackId, void *args
 {
     RPC_Packet packet = _CreatePacket(CALL_FUNCTION, funcId, callBackId, args, argSize, retSize);
     RPC_ReturnStatus rc = _SendPacket(packet);
-    //wait for result
-    *callBackResPtr = _PerformFunction(callBackId, args);
     return rc;
 }

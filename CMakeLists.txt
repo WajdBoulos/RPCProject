@@ -10,7 +10,6 @@ project (RPCProject)
 #        client.c
 #        RPC.c
 #        RPCImpl.c)
-
 add_executable(server
         node.c
         queue.c
@@ -22,3 +21,5 @@ add_executable(client
         queue.c
         wrappers.c
         client.c)
+
+target_link_libraries(server pthread)

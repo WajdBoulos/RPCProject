@@ -1,5 +1,6 @@
 #include "wrappers.h"
 #include "queue.h"
+#include "RPCImpl.h"
 
 #define BLOCK 1
 #define DT 2
@@ -118,7 +119,9 @@ int main(int argc, char *argv[])
     while (1) {
         int num_byte = recvfrom(listenfd, buf, MAXBUF,0, (SA *)&clientaddr, (socklen_t *) &clientlen);
         buf[num_byte] = '\0';
-        puts(buf);
+        RPC_Packet *packet = (RPC_Packet*)buf;
+        printf("%d %d %d %d %d\n", packet->cmd, packet->funcId, packet->argSize, packet->argBuf[0], packet->argBuf[1]);
+        //puts(buf);
         bool drop = 0;
         pthread_mutex_lock(&lock_wait);
         if ((getQueueSize(requests) + getQueueSize(working)) >= queue_size) {
