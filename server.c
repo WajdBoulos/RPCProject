@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
         pthread_create(&(threads[i]), NULL, &handler, NULL);
     }
     while (1) {
-        int num_byte = Recvfrom(listenfd, buf, MAXBUF,0, (SA *)&clientaddr, (socklen_t *) &clientlen);
+        int num_byte = recvfrom(listenfd, buf, MAXBUF,0, (SA *)&clientaddr, (socklen_t *) &clientlen);
         buf[num_byte] = '\0';
         puts(buf);
         bool drop = 0;
