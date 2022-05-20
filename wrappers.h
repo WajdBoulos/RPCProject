@@ -45,6 +45,27 @@ void Close(int fd);
 /* Sockets interface wrappers */
 int Recvfrom(int sockfd, void *buf, size_t len, int flags,
              struct sockaddr *src_addr, socklen_t *addrlen);
-
+void initSocket(char *hostname, struct sockaddr_in serveraddr, int portno){
+    int sockfd;
+    struct hostent* server;
+    /* socket: create the socket */
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
+        unix_error("Open_clientfd Unix error");
+        exit(1);
+    }
+    /* gethostbyname: get the server's DNS entry */
+    server = gethostbyname(hostname);
+    if (server == NULL) {
+        fprintf(stderr,"ERROR, no such host as %s\n", hostname);
+        exit(0);
+    }
+    /* build the server's Internet address */
+    bzero((char *) &serveraddr, sizeof(serveraddr));
+    serveraddr.sin_family = AF_INET;
+    bcopy((char *)server->h_addr,
+          (char *)&serveraddr.sin_addr.s_addr, server->h_length);
+    serveraddr.sin_port = htons(portno);
+}
 
 #endif /* __HELPER_H__ */
