@@ -1,8 +1,35 @@
 #include "wrappers.h"
 #include "RPCImpl.h"
+#include "stdbool.h"
+#include "queue.h"
 int serverlen;
 struct sockaddr_in serveraddr;
 int sockfd;
+pthread_mutex_t lock_wait;
+pthread_cond_t cond_wait;
+pthread_cond_t cond_wait_block;
+#define THREAD_NUM 4
+queue requests;
+int queue_size;
+RPC_Packet * packet;
+void* CallBackHandler()
+{
+    while(1) {
+        pthread_mutex_lock(&lock_wait);
+        while(getQueueSize(requests) == 0)
+        {
+            pthread_cond_wait(&cond_wait,&lock_wait);
+        }
+        RPC_Packet *rpcPacket =  getRequest(front(requests));
+        printf("callbaackID = %d\n",rpcPacket->callBackId);
+        popFromQueue(requests);
+        pthread_mutex_unlock(&lock_wait);
+        pthread_cond_signal(&cond_wait_block);
+    }
+
+}
+
+
 void initSocket(char *hostname, int portno){
     struct hostent* server;
     /* socket: create the socket */
@@ -61,9 +88,32 @@ int main(int argc, char *argv[])
     rpcPacket.packetId = 0;
     rpcPacket.retSize = -1;
     _SendPacket(rpcPacket);
+
     // waiting for response
-    Recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr*)NULL, NULL);
-    puts(buf);
+    bool alive = 1;
+    pthread_cond_init(&cond_wait_block,NULL);
+
+    pthread_cond_init(&cond_wait,NULL);
+    if ((pthread_mutex_init(&lock_wait, NULL) != 0) ){
+        exit(1);
+    }
+    pthread_t* threads = malloc((sizeof(pthread_t)) * THREAD_NUM);
+    for(int i = 0 ; i < THREAD_NUM; i++)
+    {
+        pthread_create(&(threads[i]), NULL, &CallBackHandler, NULL);
+    }
+    requests = makeQueue();
+    while(alive) {
+        Recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *) NULL, NULL);
+        packet = (RPC_Packet*)buf;
+        pthread_mutex_lock(&lock_wait);
+        if (getQueueSize(requests)  >= queue_size) {
+            pthread_cond_wait(&cond_wait_block,&lock_wait);
+        }
+        addToQueue(requests, packet);
+        pthread_mutex_unlock(&lock_wait);
+        pthread_cond_signal(&cond_wait);
+    }
     // close the descriptor
     Close(sockfd);
     exit(0);

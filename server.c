@@ -57,13 +57,11 @@ void* handler()
         {
             pthread_cond_wait(&cond_wait,&lock_wait);
         }
-        int connfd = getRequest(front(requests));
+        RPC_Packet *packet = getRequest(front(requests));
         popFromQueue(requests);
-        struct timeval dispatch;
-        gettimeofday(&dispatch , NULL);
-        addToQueue(working,connfd);
+        addToQueue(working,packet);
         pthread_mutex_unlock(&lock_wait);
-
+        packet->retSize = 1;
         sendto(listenfd, "HI Im your server.", strlen("HI Im your server."), 0,
                (SA *) &clientaddr, clientlen);
 
@@ -128,16 +126,13 @@ int main(int argc, char *argv[])
             switch (schedalg) {
                 case DT:
                     drop = 1;
-                    Close(connfd);
                     break;
                 case DH:
                     if(getQueueSize(requests) > 0 )
                     {
-                        Close(getRequest(front(requests)));
                         popFromQueue(requests);
                     }
                     else {
-                        Close(connfd);
                         drop = 1;
                     }
                     break;
@@ -147,7 +142,6 @@ int main(int argc, char *argv[])
                         removeQuarter(requests);
                     }  
                     else {
-                        Close(connfd);
                         drop = 1;
                     }
                     break;
@@ -163,7 +157,7 @@ int main(int argc, char *argv[])
 
         while (pthread_mutex_lock(&lock_wait)!= 0) {          
         }
-        addToQueue(requests, connfd);
+        addToQueue(requests, packet);
         
         pthread_mutex_unlock(&lock_wait);
         pthread_cond_signal(&cond_wait);
