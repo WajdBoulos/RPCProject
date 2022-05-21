@@ -62,12 +62,12 @@ void* handler()
         addToQueue(working,packet);
         pthread_mutex_unlock(&lock_wait);
         packet->retSize = 1;
-        sendto(listenfd, "HI Im your server.", strlen("HI Im your server."), 0,
+        sendto(listenfd, (const char*) packet, 4*6+packet->argSize, 0,
                (SA *) &clientaddr, clientlen);
 
         pthread_mutex_lock(&lock_wait);
         Close(connfd);
-        popFromQueueByInt(working,connfd);
+        popFromQueueByInt(working,packet->packetId);
         pthread_mutex_unlock(&lock_wait);
         pthread_cond_signal(&cond_wait_block);
     }

@@ -50,10 +50,11 @@ node back(queue q)
 {
     return getPrevious(q->end);
 }
-void popFromQueueByInt(queue q,int fd)
+void popFromQueueByInt(queue q,int packetId)
 {
     node temp = getNext(q->head);
-    while(getRequest(temp) != fd)
+
+    while(getRequest(temp)->packetId != packetId)
     {
         temp = getNext(temp);
     }
@@ -73,7 +74,6 @@ void removeQuarter(queue q)
           tmp = getNext(tmp);
           index_to_remove--;
       }
-      Close(getRequest(tmp));
       disconnectNode(tmp);
       q->size = q->size-1;
     }

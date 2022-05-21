@@ -23,3 +23,4 @@ add_executable(client
         client.c)
 
 target_link_libraries(server pthread)
+target_link_libraries(client pthread)

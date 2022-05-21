@@ -11,6 +11,7 @@
 typedef enum
 {
     CALL_FUNCTION,
+    CALLBACK,
 } RPC_Command;
 
 typedef struct

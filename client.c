@@ -10,7 +10,7 @@ pthread_cond_t cond_wait;
 pthread_cond_t cond_wait_block;
 #define THREAD_NUM 4
 queue requests;
-int queue_size;
+int queue_size = THREAD_NUM;
 RPC_Packet * packet;
 void* CallBackHandler()
 {
@@ -20,8 +20,8 @@ void* CallBackHandler()
         {
             pthread_cond_wait(&cond_wait,&lock_wait);
         }
-        RPC_Packet *rpcPacket =  getRequest(front(requests));
-        printf("callbaackID = %d\n",rpcPacket->callBackId);
+        RPC_Packet *rpcPacket1 =  getRequest(front(requests));
+        printf("callbaackIDReturn = %d\n",rpcPacket1->retSize);
         popFromQueue(requests);
         pthread_mutex_unlock(&lock_wait);
         pthread_cond_signal(&cond_wait_block);
@@ -97,12 +97,13 @@ int main(int argc, char *argv[])
     if ((pthread_mutex_init(&lock_wait, NULL) != 0) ){
         exit(1);
     }
+    requests = makeQueue();
     pthread_t* threads = malloc((sizeof(pthread_t)) * THREAD_NUM);
     for(int i = 0 ; i < THREAD_NUM; i++)
     {
         pthread_create(&(threads[i]), NULL, &CallBackHandler, NULL);
     }
-    requests = makeQueue();
+
     while(alive) {
         Recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *) NULL, NULL);
         packet = (RPC_Packet*)buf;
