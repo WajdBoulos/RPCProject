@@ -40,11 +40,53 @@ int getOverloadHandling(char* handler_name) {
     }
     return overload;
 }
+bool _HandleQueueOverflow(int schedalg)
+{
+    bool drop = 0;
+    switch (schedalg) {
+        case DT:
+            drop = 1;
+            break;
+        case DH:
+            if(getQueueSize(requests) > 0 )
+            {
+                popFromQueue(requests);
+            }
+            else {
+                drop = 1;
+            }
+            break;
+        case RANDOM:
+            if(getQueueSize(requests) > 0 )
+            {
+                removeQuarter(requests);
+            }
+            else {
+                drop = 1;
+            }
+            break;
+        default:
+            pthread_cond_wait(&cond_wait_block,&lock_wait);
+            break;
+    }
+    return drop;
+}
+
 int listenfd, connfd, port, clientlen, queue_size, threads_num, schedalg;
 struct sockaddr_in clientaddr;
+char buf[MAXLINE];
+
+int _SendPacket(RPC_Packet *packet){
+    int n = sendto(listenfd, (const char*) packet, 4*6+packet->argSize, 0, (SA *) &clientaddr, clientlen);
+    if (n < 0) {
+        unix_error("Open_clientfd Unix error");
+        exit(1);
+    }
+    return 1;
+}
 
 void* handler()
-{   
+{
 
     pthread_mutex_lock(&lock_wait);
     id_thread++;
@@ -52,7 +94,7 @@ void* handler()
 
     while(1) {
         pthread_mutex_lock(&lock_wait);
-        
+
         while(getQueueSize(requests) == 0)
         {
             pthread_cond_wait(&cond_wait,&lock_wait);
@@ -62,8 +104,9 @@ void* handler()
         addToQueue(working,packet);
         pthread_mutex_unlock(&lock_wait);
         packet->retSize = 1;
-        sendto(listenfd, (const char*) packet, 4*6+packet->argSize, 0,
-               (SA *) &clientaddr, clientlen);
+        packet->callBackId = 5;
+
+        _SendPacket(packet);
 
         pthread_mutex_lock(&lock_wait);
         Close(connfd);
@@ -74,15 +117,13 @@ void* handler()
 
 }
 
-
-int main(int argc, char *argv[])
+void _InitServer(int argc, char *argv[])
 {
     struct sockaddr_in serveraddr;
-    char buf[MAXLINE];
     getargs(&port, argc, argv);
     srand(time(0));
     schedalg = getOverloadHandling(argv[4]);
-    
+
     pthread_cond_init(&cond_wait_block,NULL);
 
     pthread_cond_init(&cond_wait,NULL);
@@ -114,6 +155,10 @@ int main(int argc, char *argv[])
     {
         pthread_create(&(threads[i]), NULL, &handler, NULL);
     }
+}
+
+void _RecieveHandler()
+{
     while (1) {
         int num_byte = recvfrom(listenfd, buf, MAXBUF,0, (SA *)&clientaddr, (socklen_t *) &clientlen);
         buf[num_byte] = '\0';
@@ -122,47 +167,29 @@ int main(int argc, char *argv[])
         //puts(buf);
         bool drop = 0;
         pthread_mutex_lock(&lock_wait);
-        if ((getQueueSize(requests) + getQueueSize(working)) >= queue_size) {
-            switch (schedalg) {
-                case DT:
-                    drop = 1;
-                    break;
-                case DH:
-                    if(getQueueSize(requests) > 0 )
-                    {
-                        popFromQueue(requests);
-                    }
-                    else {
-                        drop = 1;
-                    }
-                    break;
-                case RANDOM:
-                    if(getQueueSize(requests) > 0 )
-                    {
-                        removeQuarter(requests);
-                    }  
-                    else {
-                        drop = 1;
-                    }
-                    break;
-                default:
-                    pthread_cond_wait(&cond_wait_block,&lock_wait);
-                    break;
-            }
+        if ((getQueueSize(requests) + getQueueSize(working)) >= queue_size)
+        {
+            drop = _HandleQueueOverflow(schedalg);
         }
-        pthread_mutex_unlock(&lock_wait); 
+        pthread_mutex_unlock(&lock_wait);
         if (drop){
             continue;
         }
 
-        while (pthread_mutex_lock(&lock_wait)!= 0) {          
+        while (pthread_mutex_lock(&lock_wait)!= 0) {
         }
         addToQueue(requests, packet);
-        
+
         pthread_mutex_unlock(&lock_wait);
         pthread_cond_signal(&cond_wait);
     }
+}
 
+int main(int argc, char *argv[])
+{
+
+    _InitServer(argc, argv);
+    _RecieveHandler();
 }
 
 
