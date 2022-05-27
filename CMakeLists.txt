@@ -27,10 +27,19 @@ add_executable(clientRPC
         queue.c
         wrappers.c
         ClientMain.c
-        RPCThreadHandler.c
+        RPCClientImpl.c
+        RPC.c)
+
+add_executable(ServerRPC
+        node.c
+        queue.c
+        wrappers.c
+        ServerMain.c
+        RPCServerImpl.c
         RPC.c)
 
 target_link_libraries(server pthread)
 target_link_libraries(client pthread)
 target_link_libraries(clientRPC pthread)
+target_link_libraries(ServerRPC pthread)
 

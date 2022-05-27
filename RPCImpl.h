@@ -1,9 +1,13 @@
 //
-// Created by wajd_ on 4/26/2022.
+// Created by user on 5/27/22.
 //
 
 #ifndef RPCPROJECT_RPCIMPL_H
 #define RPCPROJECT_RPCIMPL_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define RPC_ARGS_SIZE 8000
 
@@ -25,5 +29,14 @@ typedef struct
     uint8_t argBuf[RPC_ARGS_SIZE];
 } RPC_Packet;
 
+void RPC_Comm_Init();
+
+void RPC_InitThreadPool();
+
+int RPC_SendPacket(RPC_Packet *packet);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //RPCPROJECT_RPCIMPL_H

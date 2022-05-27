@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "RPCThreadHandler.h"
+#include "RPCImpl.h"
 
 void* (*g_funcList[MAX_RPC_FUNCS]) (void *args);
 
