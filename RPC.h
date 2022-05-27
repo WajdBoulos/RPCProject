@@ -17,9 +17,9 @@ typedef enum
     RPC_FAILURE
 } RPC_ReturnStatus;
 
-RPC_ReturnStatus RPC_Functions_Init(void* *funcArr(void *args), const int numFuncs);
+RPC_ReturnStatus RPC_Init(void* *funcArr(void *args), const int numFuncs);
 
-RPC_ReturnStatus RPC_Function_Call(const int funcId, const int numFuncs);
+RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int argSize, int retSize, void **callBackResPtr);
 
 #ifdef __cplusplus
 }

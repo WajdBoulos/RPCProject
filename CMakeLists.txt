@@ -22,5 +22,15 @@ add_executable(client
         wrappers.c
         client.c)
 
+add_executable(clientRPC
+        node.c
+        queue.c
+        wrappers.c
+        ClientMain.c
+        RPCThreadHandler.c
+        RPC.c)
+
 target_link_libraries(server pthread)
 target_link_libraries(client pthread)
+target_link_libraries(clientRPC pthread)
+

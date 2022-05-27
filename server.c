@@ -103,8 +103,8 @@ void* handler()
         popFromQueue(requests);
         addToQueue(working,packet);
         pthread_mutex_unlock(&lock_wait);
-        packet->retSize = 1;
-        packet->callBackId = 5;
+//        packet->retSize = 1;
+//        packet->callBackId = 5;
 
         _SendPacket(packet);
 
