@@ -21,9 +21,8 @@ RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs)
     }
 
     memcpy(g_funcList, funcArr, sizeof(funcArr) * numFuncs);
-
-    RPC_InitThreadPool();
     RPC_Comm_Init();
+    RPC_InitThreadPool();
     return RPC_SUCCESS;
 }
 
