@@ -18,6 +18,7 @@ static uint8_t  buf[MAXLINE];
 
 static queue requests;
 static int queue_size = THREAD_NUM;
+static pthread_t s_threads[THREAD_NUM + 1];
 
 void *_PerformFunction(int funcId, void *args)
 {
@@ -82,7 +83,7 @@ void RPC_InitThreadPool()
         exit(1);
     }
     requests = makeQueue();
-    pthread_t* threads = malloc((sizeof(pthread_t)) * (THREAD_NUM + 1));
+    pthread_t* threads = s_threads;
     for(int i = 0 ; i < THREAD_NUM; i++)
     {
         pthread_create(&(threads[i]), NULL, &_CallBackHandler, NULL);

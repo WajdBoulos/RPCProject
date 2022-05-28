@@ -101,7 +101,7 @@ void* handler()
         }
         RPC_Packet *packet = getRequest(front(requests));
         popFromQueue(requests);
-     //   addToQueue(working,packet);
+        addToQueue(working,packet);
         pthread_mutex_unlock(&lock_wait);
 //        packet->retSize = 1;
 //        packet->callBackId = 5;

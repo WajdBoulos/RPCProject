@@ -6,11 +6,6 @@
 
 #define THREAD_NUM 4
 
-#define BLOCK 1
-#define DT 2
-#define DH 3
-#define RANDOM 4
-
 extern void* (*g_funcList[MAX_RPC_FUNCS]) (void *args);
 
 static int serverlen;
@@ -20,41 +15,11 @@ static pthread_cond_t cond_wait_block;
 static uint8_t  buf[MAXLINE];
 
 static queue requests;
-static queue working;
 static int queue_size = THREAD_NUM;
-static int listenfd, port, clientlen, threads_num, schedalg;
+static int listenfd, connfd, port, clientlen, threads_num, schedalg;
 static struct sockaddr_in clientaddr;
-bool _HandleQueueOverflow(int schedalg)
-{
-    bool drop = 0;
-    switch (schedalg) {
-        case DT:
-            drop = 1;
-            break;
-        case DH:
-            if(getQueueSize(requests) > 0 )
-            {
-                popFromQueue(requests);
-            }
-            else {
-                drop = 1;
-            }
-            break;
-        case RANDOM:
-            if(getQueueSize(requests) > 0 )
-            {
-                removeQuarter(requests);
-            }
-            else {
-                drop = 1;
-            }
-            break;
-        default:
-            pthread_cond_wait(&cond_wait_block,&lock_wait);
-            break;
-    }
-    return drop;
-}
+static pthread_t s_threads[THREAD_NUM + 1];
+
 void *_PerformFunction(int funcId, void *args)
 {
     return g_funcList[funcId](args);
@@ -70,24 +35,19 @@ int RPC_SendPacket(RPC_Packet *packet){
 
 static void* _CallBackHandler()
 {
-    pthread_mutex_lock(&lock_wait);
-    pthread_mutex_unlock(&lock_wait);
-
     while(1) {
         pthread_mutex_lock(&lock_wait);
-
         while(getQueueSize(requests) == 0)
         {
             pthread_cond_wait(&cond_wait,&lock_wait);
         }
-        RPC_Packet *packet = getRequest(front(requests));
-        popFromQueueByInt(requests,packet->packetId);
+        RPC_Packet rpcPacket1;
+        memcpy(&rpcPacket1, getRequest(front(requests)), sizeof (RPC_Packet));
+        popFromQueue(requests);
         pthread_mutex_unlock(&lock_wait);
+        _PerformFunction(rpcPacket1.funcId, rpcPacket1.argBuf);
+        RPC_SendPacket(&rpcPacket1);
         pthread_cond_signal(&cond_wait_block);
-        printf(" buffer here1 = %d\n", packet->argBuf[0]);
-        _PerformFunction(packet->funcId, packet->argBuf);
-        RPC_SendPacket(packet);
-
     }
 
 }
@@ -95,34 +55,25 @@ static void* _CallBackHandler()
 
 static void* _RecieveHandler()
 {
-    while(1) {
-        int num_byte = recvfrom(listenfd, buf, MAXBUF, 0, (SA *) &clientaddr, (socklen_t *) &clientlen);
-        buf[num_byte] = '\0';
-        RPC_Packet *packet = (RPC_Packet *) buf;
-        printf("%d %d %d %d\n", packet->cmd, packet->funcId, packet->argSize, packet->argBuf[0]);
-        //puts(buf);
-        bool drop = 0;
+    RPC_Packet * packet;
+    bool alive = 1;
+    while(alive) {
+        recvfrom(listenfd, buf, MAXBUF,0, (SA *)&clientaddr, (socklen_t *) &clientlen);
+        packet = (RPC_Packet*)buf;
         pthread_mutex_lock(&lock_wait);
         if (getQueueSize(requests)  >= queue_size) {
-            drop = _HandleQueueOverflow(schedalg);
-        }
-        pthread_mutex_unlock(&lock_wait);
-        if (drop) {
-            continue;
-        }
-
-        while (pthread_mutex_lock(&lock_wait) != 0) {
+            pthread_cond_wait(&cond_wait_block,&lock_wait);
         }
         addToQueue(requests, packet);
         pthread_mutex_unlock(&lock_wait);
         pthread_cond_signal(&cond_wait);
     }
-
+    // close the descriptor
+//    Close(listenfd);
 }
 
 void RPC_InitThreadPool()
 {
-    schedalg = BLOCK;
     pthread_cond_init(&cond_wait_block,NULL);
 
     pthread_cond_init(&cond_wait,NULL);
@@ -130,14 +81,13 @@ void RPC_InitThreadPool()
         exit(1);
     }
     requests = makeQueue();
-    pthread_t* threads = malloc((sizeof(pthread_t)) * (THREAD_NUM + 1));
+    pthread_t* threads = s_threads;
     for(int i = 0 ; i < THREAD_NUM; i++)
     {
         pthread_create(&(threads[i]), NULL, &_CallBackHandler, NULL);
     }
 
-    _RecieveHandler();
-    //pthread_create(&(threads[THREAD_NUM]), NULL, &_RecieveHandler, NULL);
+    pthread_create(&(threads[THREAD_NUM]), NULL, &_RecieveHandler, NULL);
 }
 
 void RPC_Comm_Init(){

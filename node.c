@@ -2,7 +2,7 @@
 #include "node.h"
 struct Node
 {
-    RPC_Packet *packet;
+    RPC_Packet packet;
     node next;
     node previous;
     int head;
@@ -10,9 +10,9 @@ struct Node
 node makeNode(RPC_Packet *packet, int index)
 {
     node new_node = malloc(sizeof(*new_node));
-    new_node->packet = malloc(sizeof(*packet));
+  //  new_node->packet = malloc(sizeof(*packet));
     if(packet)
-    memcpy(new_node->packet, packet, sizeof(RPC_Packet));
+    memcpy(&new_node->packet, packet, sizeof(RPC_Packet));
     new_node->next = NULL;
     new_node->previous = NULL;
     new_node->head = index;
@@ -75,5 +75,5 @@ node getPrevious(node nd)
 }
 RPC_Packet *getRequest(node nd)
 {
-    return nd->packet;
+    return &nd->packet;
 }

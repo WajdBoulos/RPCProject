@@ -9,7 +9,7 @@
 
 static void* (*s_funcList[MAX_RPC_FUNCS]) (void *args);
 
-void *testFunc(void *in)
+void testFunc(void *in)
 {
     (void)in;
     printf("yoooo this works! Server %d\n", *(int*)in);

@@ -32,6 +32,29 @@ int main()
     //sleep(1);
 
     RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
 
     while(1);
 }
