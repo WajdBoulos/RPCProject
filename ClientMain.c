@@ -11,10 +11,16 @@ void *testFunc(void *in)
     printf("yoooo this works! client %d\n", *(int*)(in));
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+    if(argc != 3)
+    {
+        fprintf(stderr, "Usage:./ClientMain <Server_IP> <Port>");
+        return 1;
+    }
+
     s_funcList[0] = testFunc;
-    RPC_Init(s_funcList, 1, "132.68.60.142", 5000);
+    RPC_Init(s_funcList, 1, argv[1], atoi(argv[2]));
 
     int printNum1= 9;
     RPC_CallFunction(0, 0, &printNum1, 4, 0, NULL);
