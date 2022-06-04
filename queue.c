@@ -61,22 +61,3 @@ void popFromQueueByInt(queue q,int packetId)
     disconnectNode(temp);
     q->size = q->size -1;
 }
-
-void removeQuarter(queue q)
-{
-    int size = q->size;
-    while(q->size > ceil(size*3/4))
-    {
-        srand(time(0));
-      int index_to_remove = rand()%(q->size);
-      node tmp = getNext(q->head);
-      while(index_to_remove > 0 )
-      {
-          tmp = getNext(tmp);
-          index_to_remove--;
-      }
-      disconnectNode(tmp);
-      q->size = q->size-1;
-    }
-}
-

@@ -20,10 +20,11 @@ typedef enum
 
 RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs, char* deviceIP, int portNum);
 
-RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int argSize, int retSize, void **callBackResPtr);
+RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int inStructSize, int outStructSize);
 
 void RPC_Barrier();
 
+void RPC_Destroy();
 
 #ifdef __cplusplus
 }

@@ -18,13 +18,13 @@ static queue requests;
 static int queue_size = THREAD_NUM;
 static pthread_t s_threads[THREAD_NUM + 1];
 
-static void* (*s_funcList[MAX_RPC_FUNCS]) (void *args);
+static void (*s_funcList[MAX_RPC_FUNCS]) (void *args);
 
 static uint32_t s_packetId = 0;
 
-void *_PerformFunction(int funcId, void *args)
+void _PerformFunction(int funcId, void *args)
 {
-    return s_funcList[funcId](args);
+    s_funcList[funcId](args);
 }
 
 RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn){
@@ -146,18 +146,31 @@ RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs, char* devi
     return RPC_SUCCESS;
 }
 
-RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int argSize, int retSize, void **callBackResPtr)
+RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int inStructSize, int outStructSize)
 {
-    RPC_Packet packet = _CreatePacket(CALL_FUNCTION, funcId, callBackId, args, argSize, retSize);
+    if(inStructSize > RPC_ARGS_MAX_SIZE || outStructSize > RPC_ARGS_MAX_SIZE)
+    {
+        return RPC_FAILURE;
+    }
+    RPC_Packet packet = _CreatePacket(CALL_FUNCTION, funcId, callBackId, args, inStructSize, outStructSize);
     RPC_ReturnStatus rc = _SendPacket(&packet);
     return rc;
 }
 
-
-void RPC_Barrier() {
+void RPC_Barrier()
+{
     pthread_mutex_lock(&lock_wait_jobs_done);
-    while(num_of_packets != 0) {
+    while(num_of_packets != 0)
+    {
         pthread_cond_wait(&cond_wait_jobs_done,&lock_wait_jobs_done);
     }
     pthread_mutex_unlock(&lock_wait_jobs_done);
+}
+
+void RPC_Destroy()
+{
+    for(int i = 0; i < THREAD_NUM + 1; i++)
+    {
+        pthread_cancel(s_threads[i]);
+    }
 }

@@ -28,7 +28,7 @@ void *_PerformFunction(int funcId, void *args)
 }
 
 int _SendPacket(RPC_Packet *packet){
-    int n = sendto(listenfd, (const char*) packet, 4*6+packet->argSize, 0, (SA *) &clientaddr, clientlen);
+    int n = sendto(listenfd, (const char*) packet, 4*6+packet->retSize, 0, (SA *) &clientaddr, clientlen);
     if (n < 0) {
         unix_error("Open_clientfd Unix error");
     }

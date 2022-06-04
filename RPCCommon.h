@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define RPC_ARGS_SIZE 8000
+#define RPC_ARGS_MAX_SIZE 8192
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -31,7 +31,7 @@ typedef struct
     uint32_t argSize;
     uint32_t retSize;
     uint32_t packetId;
-    uint8_t argBuf[RPC_ARGS_SIZE];
+    uint8_t argBuf[RPC_ARGS_MAX_SIZE];
 } RPC_Packet;
 
 /* Simplifies calls to bind(), connect(), and accept() */

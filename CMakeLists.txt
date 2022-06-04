@@ -16,3 +16,12 @@ add_executable(RPCDeviceExample
 target_link_libraries(RPCHostExample pthread)
 target_link_libraries(RPCDeviceExample pthread)
 
+add_library(RPCHostLib
+        node.c
+        queue.c
+        RPCHost.c)
+
+add_library(RPCDeviceLib
+        node.c
+        queue.c
+        RPCDevice.c)

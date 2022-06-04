@@ -4,11 +4,40 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-static void* (*s_funcList[MAX_RPC_FUNCS]) (void *args);
-void *testFunc(void *in)
+static void (*s_funcList[2]) (void *args);
+
+
+#define FIBONACCI_MAX_N 1000
+
+typedef struct
 {
-    (void)in;
-    printf("yoooo this works! client %d\n", *(int*)(in));
+    int n;
+} FibonaciIn;
+
+typedef struct
+{
+    int n;
+    int out[FIBONACCI_MAX_N];
+} FibonaciOut;
+
+void printFibonaciRes(void *in)
+{
+    FibonaciOut *res = in;
+    for(int i = 0; i < res->n; i++)
+    {
+        printf("%d ", res->out[i]);
+    }
+    printf("\n");
+}
+
+void printFibonaciResReverse(void *in)
+{
+    FibonaciOut *res = in;
+    for(int i = res->n - 1; i >= 0; i--)
+    {
+        printf("%d ", res->out[i]);
+    }
+    printf("\n");
 }
 
 int main(int argc, char *argv[])
@@ -19,52 +48,25 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    s_funcList[0] = testFunc;
-    RPC_Init(s_funcList, 1, argv[1], atoi(argv[2]));
+    s_funcList[0] = printFibonaciRes;
+    s_funcList[1] = printFibonaciResReverse;
 
-    int printNum1= 9;
-    RPC_CallFunction(0, 0, &printNum1, 4, 0, NULL);
-    //sleep(0.01);
-    int printNum2 = 5;
+    RPC_Init(s_funcList, 2, argv[1], atoi(argv[2]));
 
-    RPC_CallFunction(0, 0, &printNum2, 4, 0, NULL);
-    //sleep(0.0011);
+    for(int i = 1; i < 8; i++)
+    {
+        int fibonaciLen = i;
+        FibonaciIn fibIn = {fibonaciLen};
+        RPC_CallFunction(0, 0, &fibIn, sizeof(fibIn), sizeof(int) * (1 + fibonaciLen));
+    }
 
-    int printNum3 = 2;
-
-    RPC_CallFunction(0, 0, &printNum3, 4, 0, NULL);
-    int printNum4 = 1;
-    //sleep(1);
-
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    for(int i = 1; i < 8; i++)
+    {
+        int fibonaciLen = i;
+        FibonaciIn fibIn = {fibonaciLen};
+        RPC_CallFunction(0, 1, &fibIn, sizeof(fibIn), sizeof(int) * (1 + fibonaciLen));
+    }
 
     RPC_Barrier();
-    printNum4 = 666;
-
-    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
-    RPC_Barrier();
-
+    RPC_Destroy();
 }

@@ -14,7 +14,9 @@ typedef enum
     RPC_SUCCESS,
     RPC_FAILURE
 } RPC_ReturnStatus;
-
+/**
+ *
+ * */
 RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs, int portNum);
 
 #ifdef __cplusplus
