@@ -1,4 +1,3 @@
-#include "wrappers.h"
 #include "RPCCommon.h"
 #include "queue.h"
 #include "RPCHost.h"
@@ -66,7 +65,7 @@ static void* _RecieveHandler()
 {
     RPC_Packet * packet;
     while(1) {
-        Recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *) NULL, NULL);
+        recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *) NULL, NULL);
         packet = (RPC_Packet*)buf;
         pthread_mutex_lock(&lock_wait);
         if (getQueueSize(requests)  >= queue_size) {

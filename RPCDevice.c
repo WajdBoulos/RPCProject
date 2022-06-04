@@ -1,4 +1,3 @@
-#include "wrappers.h"
 #include "RPCCommon.h"
 #include "stdbool.h"
 #include "queue.h"
@@ -11,7 +10,7 @@ static void* (*s_funcList[MAX_RPC_FUNCS]) (void *args);
 
 static uint32_t s_packetId = 0;
 
-static int serverlen;
+/* threads*/
 static pthread_mutex_t lock_wait;
 static pthread_cond_t cond_wait;
 static pthread_cond_t cond_wait_block;
@@ -19,7 +18,7 @@ static uint8_t  buf[MAXLINE];
 
 static queue requests;
 static int queue_size = THREAD_NUM;
-static int listenfd, connfd, port, clientlen, threads_num, schedalg;
+static int listenfd, clientlen;
 static struct sockaddr_in clientaddr;
 static pthread_t s_threads[THREAD_NUM + 1];
 
@@ -54,7 +53,6 @@ static void* _CallBackHandler()
     }
 
 }
-
 
 static void* _RecieveHandler()
 {
