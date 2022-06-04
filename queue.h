@@ -2,7 +2,7 @@
 #define __QUEUE_H__
 #include "node.h"
 #include "stdbool.h"
-#include "RPCImpl.h"
+#include "RPCCommon.h"
 typedef struct Queue* queue;
 queue makeQueue();// initiolize a queue 
 int getQueueSize(queue q);// return queue size

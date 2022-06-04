@@ -2,8 +2,8 @@
 // Created by wajd_ on 4/9/2022.
 //
 
-#ifndef RPCPROJECT_RPC_H
-#define RPCPROJECT_RPC_H
+#ifndef RPCPROJECT_RPC_CLIENT_H
+#define RPCPROJECT_RPC_CLIENT_H
 
 #include <stdbool.h>
 #ifdef __cplusplus
@@ -21,10 +21,11 @@ typedef enum
 RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs, char* deviceIP, int portNum);
 
 RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int argSize, int retSize, void **callBackResPtr);
+
 void RPC_Barrier();
 
 
 #ifdef __cplusplus
 }
 #endif
-#endif //RPCPROJECT_RPC_H
+#endif //RPCPROJECT_RPC_CLIENT_H

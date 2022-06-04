@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 static void* (*s_funcList[MAX_RPC_FUNCS]) (void *args);
-
 void *testFunc(void *in)
 {
     (void)in;
@@ -15,7 +14,7 @@ void *testFunc(void *in)
 int main()
 {
     s_funcList[0] = testFunc;
-    RPC_Init(s_funcList, 1);
+    RPC_Init(s_funcList, 1, "132.68.60.142", 5000);
 
     int printNum1= 9;
     RPC_CallFunction(0, 0, &printNum1, 4, 0, NULL);
@@ -56,5 +55,10 @@ int main()
     RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
     RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
 
-    while(1);
+    RPC_Barrier();
+    printNum4 = 666;
+
+    RPC_CallFunction(0, 0, &printNum4, 4, 0, NULL);
+    RPC_Barrier();
+
 }

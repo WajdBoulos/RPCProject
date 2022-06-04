@@ -2,8 +2,8 @@
 // Created by user on 5/27/22.
 //
 
-#ifndef RPCPROJECT_RPCIMPL_H
-#define RPCPROJECT_RPCIMPL_H
+#ifndef RPCPROJECT_RPCCOMMON_H
+#define RPCPROJECT_RPCCOMMON_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,14 +29,8 @@ typedef struct
     uint8_t argBuf[RPC_ARGS_SIZE];
 } RPC_Packet;
 
-void RPC_Comm_Init();
-
-void RPC_InitThreadPool();
-
-int RPC_SendPacket(RPC_Packet *packet);
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif //RPCPROJECT_RPCIMPL_H
+#endif //RPCPROJECT_RPCCOMMON_H

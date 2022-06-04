@@ -61,6 +61,7 @@ void popFromQueueByInt(queue q,int packetId)
     disconnectNode(temp);
     q->size = q->size -1;
 }
+
 void removeQuarter(queue q)
 {
     int size = q->size;

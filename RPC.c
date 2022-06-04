@@ -3,17 +3,16 @@
 //
 
 #include "RPC.h"
-#include "RPCImpl.h"
+#include "RPCCommon.h"
 #include <string.h>
 #include <stdint.h>
 
-#include "RPCImpl.h"
 
 void* (*g_funcList[MAX_RPC_FUNCS]) (void *args);
 
 static uint32_t s_packetId = 0;
 
-RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs)
+RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs, char* deviceIP, int portNum)
 {
     if(numFuncs > MAX_RPC_FUNCS)
     {
@@ -21,13 +20,12 @@ RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs)
     }
 
     memcpy(g_funcList, funcArr, sizeof(funcArr) * numFuncs);
-    RPC_Comm_Init();
+    RPC_Comm_Init(portNum, deviceIP);
     RPC_InitThreadPool();
     return RPC_SUCCESS;
 }
 
-static inline RPC_Packet _CreatePacket(int command, int funcId, int callBackId, void *args, int argSize, int retSize)
-{
+static inline RPC_Packet _CreatePacket(int command, int funcId, int callBackId, void *args, int argSize, int retSize) {
     RPC_Packet packet;
     packet.funcId = funcId;
     packet.cmd = command;
@@ -38,18 +36,6 @@ static inline RPC_Packet _CreatePacket(int command, int funcId, int callBackId, 
     memcpy(packet.argBuf, args, argSize);
     return packet;
 }
-
-RPC_ReturnStatus _SendPacket(RPC_Packet packet);
-
-
-
-//static void _ParsePacket(RPC_Packet packet)
-//{
-//    if(packet.cmd == CALL_FUNCTION)
-//    {
-//        _PerformFunction(packet.funcId, packet.argBuf);
-//    }
-//}
 
 RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int argSize, int retSize, void **callBackResPtr)
 {

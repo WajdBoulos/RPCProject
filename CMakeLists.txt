@@ -27,8 +27,8 @@ add_executable(clientRPC
         queue.c
         wrappers.c
         ClientMain.c
-        RPCClientImpl.c
-        RPC.c)
+        RPCClient.c
+        )
 
 add_executable(ServerRPC
         node.c
