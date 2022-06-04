@@ -22,24 +22,23 @@ add_executable(client
         wrappers.c
         client.c)
 
-add_executable(clientRPC
+add_executable(RPCHostExample
         node.c
         queue.c
         wrappers.c
         ClientMain.c
-        RPCClient.c
+        RPCHost.c
         )
 
-add_executable(ServerRPC
+add_executable(RPCDeviceExample
         node.c
         queue.c
         wrappers.c
         ServerMain.c
-        RPCServerImpl.c
-        RPC.c)
+        RPCDevice.c)
 
 target_link_libraries(server pthread)
 target_link_libraries(client pthread)
-target_link_libraries(clientRPC pthread)
-target_link_libraries(ServerRPC pthread)
+target_link_libraries(RPCHostExample pthread)
+target_link_libraries(RPCDeviceExample pthread)
 

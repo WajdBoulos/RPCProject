@@ -1,7 +1,7 @@
 #include "wrappers.h"
 #include "RPCCommon.h"
 #include "queue.h"
-#include "RPCClient.h"
+#include "RPCHost.h"
 #include <time.h>
 #define THREAD_NUM 4
 
