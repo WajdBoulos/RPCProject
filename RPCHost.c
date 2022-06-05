@@ -24,7 +24,7 @@ static int s_queueSize = THREAD_NUM;
 static pthread_t s_threads[THREAD_NUM + 1];
 static uint32_t s_packetId = 0; /* sent packet id number */
 /* callback functions definitions */
-static void (*s_funcList[MAX_RPC_FUNCS]) (void *args);
+static RPCFunction (s_funcList[MAX_RPC_FUNCS]);
 
 
 void _PerformFunction(int funcId, void *args)
@@ -36,7 +36,8 @@ void _PerformFunction(int funcId, void *args)
  * */
 RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn){
     s_serverLen = sizeof(s_serverAddr);
-    int n = sendto(s_sockFd, (const char*) packetIn, 4*6+packetIn->argSize, 0, (const struct sockaddr_in*) &s_serverAddr, s_serverLen);
+    int n = sendto(s_sockFd, (const char*) packetIn, 4*6+packetIn->argSize, 0,
+                   (const struct sockaddr *) &s_serverAddr, s_serverLen);
     if (n < 0) {
         unix_error("Open_clientfd Unix error");
         return RPC_FAILURE;
@@ -140,7 +141,7 @@ static inline RPC_Packet _CreatePacket(int command, int funcId, int callBackId, 
     return packet;
 }
 
-RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs, char* deviceIP, int portNum)
+RPC_ReturnStatus RPC_Init(RPCFunction* funcArr, const int numFuncs, char* deviceIP, int portNum)
 {
     if(numFuncs > MAX_RPC_FUNCS)
     {

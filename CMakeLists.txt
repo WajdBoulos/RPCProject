@@ -1,4 +1,10 @@
+cmake_minimum_required(VERSION 3.22)
+
 project (RPCProject)
+
+add_compile_options(
+        -O3 -Werror
+)
 
 add_executable(RPCHostExample
         node.c

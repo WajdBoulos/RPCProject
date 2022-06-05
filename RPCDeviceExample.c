@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void (*s_funcList[MAX_RPC_FUNCS]) (void *args);
+static RPCFunction (s_funcList[2]);
 
 void testFunc(void *in)
 {
@@ -31,7 +31,7 @@ typedef struct
 void fib(void* inOut)
 {
     FibonaciIn *fibI = (FibonaciIn *)inOut;
-    FibonaciOut *fibO = (FibonaciIn *)inOut;
+    FibonaciOut *fibO = (FibonaciOut *)inOut;
     /* Declare an array to store Fibonacci numbers. */
     int *f = fibO->out;
     int i;

@@ -9,6 +9,8 @@ extern "C" {
 
 #define MAX_RPC_FUNCS 100
 
+typedef void (*RPCFunction)(void*);
+
 typedef enum
 {
     RPC_SUCCESS,
@@ -17,7 +19,7 @@ typedef enum
 /**
  *
  * */
-RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs, int portNum);
+RPC_ReturnStatus RPC_Init(RPCFunction* funcArr, const int numFuncs, int portNum);
 
 #ifdef __cplusplus
 }

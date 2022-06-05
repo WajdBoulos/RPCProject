@@ -120,7 +120,7 @@ static inline RPC_Packet _CreatePacket(int command, int funcId, int callBackId, 
     return packet;
 }
 
-RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs, int portNum)
+RPC_ReturnStatus RPC_Init(RPCFunction* funcArr, const int numFuncs, int portNum)
 {
     if(numFuncs > MAX_RPC_FUNCS)
     {

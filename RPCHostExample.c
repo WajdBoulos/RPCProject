@@ -4,8 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-static void (*s_funcList[2]) (void *args);
-
+static RPCFunction (s_funcList[2]);
 
 #define FIBONACCI_MAX_N 1000
 

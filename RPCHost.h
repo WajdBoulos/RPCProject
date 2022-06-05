@@ -12,13 +12,15 @@ extern "C" {
 
 #define MAX_RPC_FUNCS 100
 
+typedef void (*RPCFunction)(void*);
+
 typedef enum
 {
     RPC_SUCCESS,
     RPC_FAILURE
 } RPC_ReturnStatus;
 
-RPC_ReturnStatus RPC_Init(void* *funcArr(void *), const int numFuncs, char* deviceIP, int portNum);
+RPC_ReturnStatus RPC_Init(RPCFunction* funcArr, const int numFuncs, char* deviceIP, int portNum);
 
 RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int inStructSize, int outStructSize);
 
