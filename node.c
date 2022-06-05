@@ -1,5 +1,6 @@
 #include <string.h>
 #include "node.h"
+
 struct Node
 {
     RPC_Packet packet;
@@ -7,6 +8,7 @@ struct Node
     node previous;
     int head;
 };
+
 node makeNode(RPC_Packet *packet, int index)
 {
     node new_node = malloc(sizeof(*new_node));
@@ -19,11 +21,13 @@ node makeNode(RPC_Packet *packet, int index)
     return new_node;
 
 }
+
 void specialConnect(node start,node end)
 {
         start->next = end;
         end->previous = start;
 }
+
 void connectNode(node end,node connecting)
 {
     node tmp_node = end->previous;
@@ -32,6 +36,7 @@ void connectNode(node end,node connecting)
     connecting->next = end;
     end->previous = connecting;
 }
+
 void disconnectNode(node to_disconnect)
 {
    node tmp_node = to_disconnect->next;
@@ -40,12 +45,14 @@ void disconnectNode(node to_disconnect)
    tmp_node2->next = tmp_node;
    destroyNode(to_disconnect);
 }
+
 void destroyNode(node to_destroy)
 {
     to_destroy->next = NULL;
     to_destroy->previous = NULL;
     free(to_destroy);
 }
+
 void deleteall(node start)
 {
     node tmp = start->next;
@@ -57,6 +64,7 @@ void deleteall(node start)
     }
     destroyNode(tmp);
 }
+
 node getNext(node nd)
 {
     if(nd->next->head == -2)
@@ -65,6 +73,7 @@ node getNext(node nd)
     }
     return nd->next;
 }
+
 node getPrevious(node nd)
 {
     if(nd->previous->head == -1)
@@ -73,6 +82,7 @@ node getPrevious(node nd)
     }
     return nd->previous;
 }
+
 RPC_Packet *getRequest(node nd)
 {
     return &nd->packet;

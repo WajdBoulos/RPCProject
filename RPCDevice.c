@@ -5,9 +5,6 @@
 
 #define THREAD_NUM 4
 
-
-static RPCFunction (s_funcList[MAX_RPC_FUNCS]);
-
 static uint32_t s_packetId = 0;
 
 /* threads*/
@@ -20,15 +17,24 @@ static queue s_requests;
 static int s_queueSize = THREAD_NUM;
 static int s_listenFd, s_clientLen;
 static struct sockaddr_in s_clientAddr;
+
 static pthread_t s_threads[THREAD_NUM + 1];
 
-void _PerformFunction(int funcId, void *args)
+static RPCFunction (s_funcList[MAX_RPC_FUNCS]);
+static int s_numFucs = 0;
+
+static void _PerformFunction(int funcId, void *args)
 {
-    return s_funcList[funcId](args);
+    if(funcId > s_numFucs - 1)
+    {
+        unix_error("Accessing an invalid function. Make sure you properly pass number of functions in the init.");
+    }
+    s_funcList[funcId](args);
 }
 
-int _SendPacket(RPC_Packet *packet){
-    int n = sendto(s_listenFd, (const char*) packet, 4 * 6 + packet->outStructSize, 0, (SA *) &s_clientAddr, s_clientLen);
+
+static int _SendPacket(RPC_Packet *packet){
+    int n = sendto(s_listenFd, (const char*) packet, sizeof(int32_t) * 5 + packet->outStructSize, 0, (SA *) &s_clientAddr, s_clientLen);
     if (n < 0) {
         unix_error("Open_clientfd Unix error");
     }
@@ -64,6 +70,7 @@ static void* _RecieveHandler()
         if (getQueueSize(s_requests) >= s_queueSize) {
             pthread_cond_wait(&s_condWaitBlock, &s_lockWait);
         }
+        s_packetId++;
         addToQueue(s_requests, packet);
         pthread_mutex_unlock(&s_lockWait);
         pthread_cond_signal(&s_condWait);
@@ -108,18 +115,6 @@ static void _Comm_Init(int port){
     s_clientLen = sizeof(s_clientAddr);
 }
 
-static inline RPC_Packet _CreatePacket(int command, int funcId, int callBackId, void *args, int argSize, int retSize) {
-    RPC_Packet packet;
-    packet.funcId = funcId;
-    packet.cmd = command;
-    packet.callBackId = callBackId;
-    packet.inStructSize = argSize;
-    packet.outStructSize = retSize;
-    packet.packetId = s_packetId++;
-    memcpy(packet.argBuf, args, argSize);
-    return packet;
-}
-
 RPC_ReturnStatus RPC_Init(RPCFunction* funcArr, const int numFuncs, int portNum)
 {
     if(numFuncs > MAX_RPC_FUNCS)
@@ -127,6 +122,7 @@ RPC_ReturnStatus RPC_Init(RPCFunction* funcArr, const int numFuncs, int portNum)
         return RPC_FAILURE;
     }
 
+    s_numFucs = numFuncs;
     memcpy(s_funcList, funcArr, sizeof(funcArr) * numFuncs);
     _Comm_Init(portNum);
     _InitThreadPool();

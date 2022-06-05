@@ -9,10 +9,7 @@
 
 static RPCFunction (s_funcList[2]);
 
-void stubFunc(void *in)
-{
-    (void)in;
-}
+#define NUM_FUNCTIONS_DEVICE 2
 
 #define FIBONACCI_MAX_N 1000
 
@@ -48,6 +45,11 @@ void fib(void* inOut)
     }
 }
 
+void stubFunc(void *in)
+{
+    (void)in;
+}
+
 int main(int argc, char *argv[])
 {
     if(argc != 2)
@@ -60,7 +62,7 @@ int main(int argc, char *argv[])
     s_funcList[0] = fib;
     s_funcList[1] = stubFunc;
 
-    RPC_Init(s_funcList, 2, atoi(argv[1]));
+    RPC_Init(s_funcList, NUM_FUNCTIONS_DEVICE, atoi(argv[1]));
 
     while(1);
 }

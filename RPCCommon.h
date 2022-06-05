@@ -25,7 +25,6 @@ typedef enum
 
 typedef struct
 {
-    uint32_t cmd;
     uint32_t funcId;
     uint32_t callBackId;
     uint32_t inStructSize;

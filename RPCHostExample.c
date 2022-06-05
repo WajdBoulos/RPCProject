@@ -3,9 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <time.h>
+#include <sys/time.h>
 
-static RPCFunction (s_funcList[3]);
+#define NUM_CALLBACKS_HOST 3
+static RPCFunction (s_funcList[NUM_CALLBACKS_HOST]);
 
 #define FIBONACCI_MAX_N 1000
 
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
     s_funcList[1] = printFibonaciResReverse;
     s_funcList[2] = stubFunc;
 
-    RPC_Init(s_funcList, 3, argv[1], atoi(argv[2]));
+    RPC_Init(s_funcList, NUM_CALLBACKS_HOST, argv[1], atoi(argv[2]));
 
     for(int i = 1; i < 8; i++)
     {
@@ -75,12 +76,21 @@ int main(int argc, char *argv[])
 
     RPC_Barrier();
 
-    clock_t begin = clock();
-    RPC_CallFunction(1, 2, NULL, 0, 0);
+    struct timeval t0, t1, dt;
+    gettimeofday(&t0, NULL);
+
+    const int numEmptyJobs = 100;
+    for(int i = 0; i < numEmptyJobs; i++)
+    {
+        RPC_CallFunction(1, 2, NULL, 0, 0);
+    }
     RPC_Barrier();
-    clock_t end = clock();
-    float time_spent = (float)(end - begin) / CLOCKS_PER_SEC;
-    printf("Time to finish empty job and callback: %f\n", time_spent);
+    gettimeofday(&t1, NULL);
+    timersub(&t1, &t0, &dt);
+
+    //printf("Time to finish empty job and callback: %f\n", time_spent);
+    double totTime = (1e+6 *  (double)dt.tv_sec +  (double)dt.tv_usec)/(double)numEmptyJobs;
+    printf( "Time to finish empty job and callback: %f microseconds\n", totTime);
 
     RPC_Destroy();
 }

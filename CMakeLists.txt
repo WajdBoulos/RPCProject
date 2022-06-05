@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project (RPCProject)
 
 add_compile_options(
-         -Werror
+        -O3 -Werror
 )
 
 add_executable(RPCHostExample

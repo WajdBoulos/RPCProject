@@ -13,6 +13,7 @@ static int s_serverLen;
 static struct sockaddr_in s_serverAddr;
 static int s_sockFd;
 static uint8_t  s_buf[MAXLINE];
+
 /* requests queue definitions */
 static pthread_mutex_t s_lockWaitJobs;
 static pthread_cond_t s_condWaitToJobs;
@@ -25,18 +26,22 @@ static pthread_t s_threads[THREAD_NUM + 1];
 static uint32_t s_packetId = 0; /* sent packet id number */
 /* callback functions definitions */
 static RPCFunction (s_funcList[MAX_RPC_FUNCS]);
+static int s_numFucs = 0;
 
-
-void _PerformFunction(int funcId, void *args)
+static void _PerformFunction(int funcId, void *args)
 {
+    if(funcId > s_numFucs - 1)
+    {
+        unix_error("Accessing an invalid function. Make sure you properly pass number of functions in the init.");
+    }
     s_funcList[funcId](args);
 }
 
 /*
  * */
-RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn){
+static RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn){
     s_serverLen = sizeof(s_serverAddr);
-    int n = sendto(s_sockFd, (const char*) packetIn, 4*6+packetIn->inStructSize, 0,
+    int n = sendto(s_sockFd, (const char*) packetIn, sizeof(int32_t)*5+packetIn->inStructSize, 0,
                    (const struct sockaddr *) &s_serverAddr, s_serverLen);
     if (n < 0) {
         unix_error("Open_clientfd Unix error");
@@ -87,16 +92,16 @@ static void* _RecieveHandler()
     return NULL;
 }
 
-void _InitThreadPool()
+static RPC_ReturnStatus _InitThreadPool()
 {
     pthread_cond_init(&s_condWaitBlockJobs, NULL);
     pthread_cond_init(&s_condWaitToJobs, NULL);
     if ((pthread_mutex_init(&s_lockWaitJobs, NULL) != 0) ){
-        exit(1);
+        return RPC_FAILURE;
     }
     pthread_cond_init(&s_condWaitJobsDone, NULL);
     if ((pthread_mutex_init(&s_lockWaitJobsDone, NULL) != 0) ){
-        exit(1);
+        return RPC_FAILURE;
     }
     s_jobs = makeQueue();
     for(int i = 0 ; i < THREAD_NUM; i++)
@@ -104,21 +109,22 @@ void _InitThreadPool()
         pthread_create(&(s_threads[i]), NULL, &_CallBackHandler, NULL);
     }
     pthread_create(&(s_threads[THREAD_NUM]), NULL, &_RecieveHandler, NULL);
+    return RPC_SUCCESS;
 }
 
-void _Comm_Init(int portno, char* hostname){
+static RPC_ReturnStatus _Comm_Init(int portno, char* hostname){
     struct hostent* server;
     /* socket: create the socket */
     s_sockFd = socket(AF_INET, SOCK_DGRAM, 0);
     if (s_sockFd < 0) {
         unix_error("Open_clientfd Unix error");
-        exit(1);
+        return RPC_FAILURE;
     }
     /* gethostbyname: get the server's DNS entry */
     server = gethostbyname(hostname);
     if (server == NULL) {
         fprintf(stderr,"ERROR, no such host as %s\n", hostname);
-        exit(0);
+        return RPC_FAILURE;
     }
     /* build the server's Internet address */
     bzero((char *) &s_serverAddr, sizeof(s_serverAddr));
@@ -126,15 +132,12 @@ void _Comm_Init(int portno, char* hostname){
     bcopy((char *)server->h_addr,
           (char *)&s_serverAddr.sin_addr.s_addr, server->h_length);
     s_serverAddr.sin_port = htons(portno);
+    return RPC_SUCCESS;
 }
-
-
-
 
 static inline RPC_Packet _CreatePacket(int command, int funcId, int callBackId, void *args, int argSize, int retSize) {
     RPC_Packet packet;
     packet.funcId = funcId;
-    packet.cmd = command;
     packet.callBackId = callBackId;
     packet.inStructSize = argSize;
     packet.outStructSize = retSize;
@@ -150,10 +153,11 @@ RPC_ReturnStatus RPC_Init(RPCFunction* funcArr, const int numFuncs, char* device
         return RPC_FAILURE;
     }
 
+    s_numFucs = numFuncs;
     memcpy(s_funcList, funcArr, sizeof(funcArr) * numFuncs);
-    _Comm_Init(portNum, deviceIP);
-    _InitThreadPool();
-    return RPC_SUCCESS;
+    RPC_ReturnStatus rc = _Comm_Init(portNum, deviceIP);
+    rc |= _InitThreadPool();
+    return rc;
 }
 
 RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int inStructSize, int outStructSize)

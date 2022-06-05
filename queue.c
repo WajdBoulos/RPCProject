@@ -1,12 +1,14 @@
 #include "queue.h"
 #include "math.h"
 #include "RPCCommon.h"
+
 struct Queue
 {
     node head;
     node end;
     int size;
 };
+
 queue makeQueue()
 {
       queue new_queue = malloc(sizeof(*new_queue));
@@ -36,20 +38,24 @@ void popFromQueue(queue q)
     disconnectNode(new_node);
     q->size = q->size-1;
 }
+
 void killQueue(queue to_kill)
 {
     deleteall(to_kill->head);
     free(to_kill);
 }
+
 node front(queue q)
 {
     // printf("in head\n");
     return getNext(q->head);
 }
+
 node back(queue q)
 {
     return getPrevious(q->end);
 }
+
 void popFromQueueByInt(queue q,int packetId)
 {
     node temp = getNext(q->head);
