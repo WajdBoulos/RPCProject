@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
-static RPCFunction (s_funcList[2]);
+static RPCFunction (s_funcList[3]);
 
 #define FIBONACCI_MAX_N 1000
 
@@ -39,18 +40,24 @@ void printFibonaciResReverse(void *in)
     printf("\n");
 }
 
+void stubFunc(void *in)
+{
+    (void)in;
+}
+
 int main(int argc, char *argv[])
 {
     if(argc != 3)
     {
-        fprintf(stderr, "Usage:./ClientMain <Server_IP> <Port>");
+        fprintf(stderr, "Usage:./RPCHostExample <Server_IP> <Port>");
         return 1;
     }
 
     s_funcList[0] = printFibonaciRes;
     s_funcList[1] = printFibonaciResReverse;
+    s_funcList[2] = stubFunc;
 
-    RPC_Init(s_funcList, 2, argv[1], atoi(argv[2]));
+    RPC_Init(s_funcList, 3, argv[1], atoi(argv[2]));
 
     for(int i = 1; i < 8; i++)
     {
@@ -67,5 +74,13 @@ int main(int argc, char *argv[])
     }
 
     RPC_Barrier();
+
+    clock_t begin = clock();
+    RPC_CallFunction(1, 2, NULL, 0, 0);
+    RPC_Barrier();
+    clock_t end = clock();
+    float time_spent = (float)(end - begin) / CLOCKS_PER_SEC;
+    printf("Transmission time of 1 request: %f\n", time_spent);
+
     RPC_Destroy();
 }

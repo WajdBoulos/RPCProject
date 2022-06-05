@@ -6,7 +6,7 @@
 #define THREAD_NUM 4
 
 
-static void* (*s_funcList[MAX_RPC_FUNCS]) (void *args);
+static RPCFunction (s_funcList[MAX_RPC_FUNCS]);
 
 static uint32_t s_packetId = 0;
 
@@ -22,7 +22,7 @@ static int listenfd, clientlen;
 static struct sockaddr_in clientaddr;
 static pthread_t s_threads[THREAD_NUM + 1];
 
-void *_PerformFunction(int funcId, void *args)
+void _PerformFunction(int funcId, void *args)
 {
     return s_funcList[funcId](args);
 }
@@ -51,14 +51,13 @@ static void* _CallBackHandler()
         _SendPacket(&rpcPacket1);
         pthread_cond_signal(&cond_wait_block);
     }
-
+    return NULL;
 }
 
 static void* _RecieveHandler()
 {
     RPC_Packet * packet;
-    bool alive = 1;
-    while(alive) {
+    while(1) {
         recvfrom(listenfd, buf, MAXBUF,0, (SA *)&clientaddr, (socklen_t *) &clientlen);
         packet = (RPC_Packet*)buf;
         pthread_mutex_lock(&lock_wait);
@@ -69,6 +68,7 @@ static void* _RecieveHandler()
         pthread_mutex_unlock(&lock_wait);
         pthread_cond_signal(&cond_wait);
     }
+    return NULL;
 }
 
 static void _InitThreadPool()

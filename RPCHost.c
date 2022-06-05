@@ -66,6 +66,7 @@ static void* _CallBackHandler()
         pthread_mutex_unlock(&s_lockWaitJobs);
         pthread_cond_signal(&s_condWaitBlockJobs);
     }
+    return NULL;
 }
 
 
@@ -83,6 +84,7 @@ static void* _RecieveHandler()
         pthread_mutex_unlock(&s_lockWaitJobs);
         pthread_cond_signal(&s_condWaitToJobs);
     }
+    return NULL;
 }
 
 void _InitThreadPool()

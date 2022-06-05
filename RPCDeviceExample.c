@@ -9,11 +9,11 @@
 
 static RPCFunction (s_funcList[2]);
 
-void testFunc(void *in)
+void stubFunc(void *in)
 {
     (void)in;
-    printf("yoooo this works! Server %d\n", *(int*)in);
 }
+
 #define FIBONACCI_MAX_N 1000
 
 typedef struct
@@ -58,7 +58,9 @@ int main(int argc, char *argv[])
 
     //s_funcList[0] = testFunc;
     s_funcList[0] = fib;
-    RPC_Init(s_funcList, 1, atoi(argv[1]));
+    s_funcList[1] = stubFunc;
+
+    RPC_Init(s_funcList, 2, atoi(argv[1]));
 
     while(1);
 }
