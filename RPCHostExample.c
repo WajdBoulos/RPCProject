@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     RPC_Barrier();
     clock_t end = clock();
     float time_spent = (float)(end - begin) / CLOCKS_PER_SEC;
-    printf("Transmission time of 1 request: %f\n", time_spent);
+    printf("Time to finish empty job and callback: %f\n", time_spent);
 
     RPC_Destroy();
 }

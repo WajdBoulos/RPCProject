@@ -36,7 +36,7 @@ void _PerformFunction(int funcId, void *args)
  * */
 RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn){
     s_serverLen = sizeof(s_serverAddr);
-    int n = sendto(s_sockFd, (const char*) packetIn, 4*6+packetIn->argSize, 0,
+    int n = sendto(s_sockFd, (const char*) packetIn, 4*6+packetIn->inStructSize, 0,
                    (const struct sockaddr *) &s_serverAddr, s_serverLen);
     if (n < 0) {
         unix_error("Open_clientfd Unix error");
@@ -136,8 +136,8 @@ static inline RPC_Packet _CreatePacket(int command, int funcId, int callBackId, 
     packet.funcId = funcId;
     packet.cmd = command;
     packet.callBackId = callBackId;
-    packet.argSize = argSize;
-    packet.retSize = retSize;
+    packet.inStructSize = argSize;
+    packet.outStructSize = retSize;
     packet.packetId = s_packetId++;
     memcpy(packet.argBuf, args, argSize);
     return packet;

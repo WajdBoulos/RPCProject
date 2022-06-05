@@ -28,8 +28,8 @@ typedef struct
     uint32_t cmd;
     uint32_t funcId;
     uint32_t callBackId;
-    uint32_t argSize;
-    uint32_t retSize;
+    uint32_t inStructSize;
+    uint32_t outStructSize;
     uint32_t packetId;
     uint8_t argBuf[RPC_ARGS_MAX_SIZE];
 } RPC_Packet;
