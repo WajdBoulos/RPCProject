@@ -7,27 +7,26 @@ add_compile_options(
 )
 
 add_executable(RPCHostExample
-        node.c
-        queue.c
         RPCHostExample.c
-        RPCHost.c
         )
 
 add_executable(RPCDeviceExample
-        node.c
-        queue.c
         RPCDeviceExample.c
-        RPCDevice.c)
+        )
 
-target_link_libraries(RPCHostExample pthread)
-target_link_libraries(RPCDeviceExample pthread)
+target_link_libraries(RPCHostExample RPCHostLib)
+target_link_libraries(RPCDeviceExample RPCDeviceLib)
 
 add_library(RPCHostLib
         node.c
         queue.c
         RPCHost.c)
 
+target_link_libraries(RPCHostExample pthread)
+
 add_library(RPCDeviceLib
         node.c
         queue.c
         RPCDevice.c)
+
+target_link_libraries(RPCDeviceExample pthread)
