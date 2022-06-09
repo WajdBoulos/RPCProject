@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
         RPC_CallFunction(0, 0, &fibIn, sizeof(fibIn), sizeof(int) * (1 + fibonaciLen));
     }
 
-    for(int i = 1; i < 8; i++)
+    for(int i = 1; i < 1000; i++)
     {
         int fibonaciLen = i;
         FibonaciIn fibIn = {fibonaciLen};
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     struct timeval t0, t1, dt;
     gettimeofday(&t0, NULL);
 
-    const int numEmptyJobs = 100;
+    const int numEmptyJobs = 1000;
     for(int i = 0; i < numEmptyJobs; i++)
     {
         RPC_CallFunction(1, 2, NULL, 0, 0);

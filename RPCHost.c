@@ -176,7 +176,7 @@ RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int in
 void RPC_Barrier()
 {
     pthread_mutex_lock(&s_lockWaitJobsDone);
-    while(s_numRemainingJobs != 0)
+    if (s_numRemainingJobs != 0)
     {
         pthread_cond_wait(&s_condWaitJobsDone, &s_lockWaitJobsDone);
     }

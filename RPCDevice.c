@@ -3,7 +3,7 @@
 #include "queue.h"
 #include "RPCDevice.h"
 
-#define THREAD_NUM 4
+#define THREAD_NUM 8
 
 static uint32_t s_packetId = 0;
 
