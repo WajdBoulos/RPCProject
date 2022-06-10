@@ -24,7 +24,7 @@ RPC_ReturnStatus RPC_Init(RPCFunction* funcArr, const int numFuncs, char* device
 
 RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int inStructSize, int outStructSize);
 
-void RPC_Barrier();
+RPC_ReturnStatus RPC_Barrier(double timeout);
 
 void RPC_Destroy();
 

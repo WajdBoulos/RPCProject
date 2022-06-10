@@ -60,21 +60,21 @@ int main(int argc, char *argv[])
 
     RPC_Init(s_funcList, NUM_CALLBACKS_HOST, argv[1], atoi(argv[2]));
 
-    for(int i = 1; i < 8; i++)
+    for(int i = 1; i < 20; i++)
     {
         int fibonaciLen = i;
         FibonaciIn fibIn = {fibonaciLen};
         RPC_CallFunction(0, 0, &fibIn, sizeof(fibIn), sizeof(int) * (1 + fibonaciLen));
     }
 
-    for(int i = 1; i < 1000; i++)
+    for(int i = 1; i < 20; i++)
     {
         int fibonaciLen = i;
         FibonaciIn fibIn = {fibonaciLen};
         RPC_CallFunction(0, 1, &fibIn, sizeof(fibIn), sizeof(int) * (1 + fibonaciLen));
     }
 
-    RPC_Barrier();
+    RPC_Barrier(1);
 
     struct timeval t0, t1, dt;
     gettimeofday(&t0, NULL);
@@ -84,13 +84,22 @@ int main(int argc, char *argv[])
     {
         RPC_CallFunction(1, 2, NULL, 0, 0);
     }
-    RPC_Barrier();
+
+    RPC_Barrier(1);
     gettimeofday(&t1, NULL);
     timersub(&t1, &t0, &dt);
 
-    //printf("Time to finish empty job and callback: %f\n", time_spent);
     double totTime = (1e+6 *  (double)dt.tv_sec +  (double)dt.tv_usec)/(double)numEmptyJobs;
     printf( "Time to finish empty job and callback: %f microseconds\n", totTime);
+
+    for(int i = 1; i < 5; i++)
+    {
+        int fibonaciLen = i;
+        FibonaciIn fibIn = {fibonaciLen};
+        RPC_CallFunction(0, 1, &fibIn, sizeof(fibIn), sizeof(int) * (1 + fibonaciLen));
+    }
+
+    RPC_Barrier(1);
 
     RPC_Destroy();
 }

@@ -2,6 +2,8 @@
 #include "queue.h"
 #include "RPCHost.h"
 #include <time.h>
+#include <unistd.h>
+
 #define THREAD_NUM 4
 /* barrier definitions */
 static pthread_mutex_t s_lockWaitJobsDone;
@@ -49,7 +51,21 @@ static RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn){
     }
     pthread_mutex_lock(&s_lockWaitJobsDone);
     s_numRemainingJobs++;
+    int remainJobs = s_numRemainingJobs;
     pthread_mutex_unlock(&s_lockWaitJobsDone);
+    if(remainJobs > 100)
+    {
+        while (1)
+        {
+            pthread_mutex_lock(&s_lockWaitJobsDone);
+            if (s_numRemainingJobs < 50)
+            {
+                pthread_mutex_unlock(&s_lockWaitJobsDone);
+                break;
+            }
+            pthread_mutex_unlock(&s_lockWaitJobsDone);
+        }
+    }
     return RPC_SUCCESS;
 }
 
@@ -170,18 +186,35 @@ RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int in
     RPC_ReturnStatus rc = _SendPacket(&packet);
     return rc;
 }
+
 /*  Function to set a barrier,
  *  The barrier waits to all sent packets to be done.
  * */
-void RPC_Barrier()
+RPC_ReturnStatus RPC_Barrier(double timeout)
 {
-    pthread_mutex_lock(&s_lockWaitJobsDone);
-    if (s_numRemainingJobs != 0)
+    struct timeval t0, t1, dt;
+    gettimeofday(&t0, NULL);
+
+    while(1)
     {
-        pthread_cond_wait(&s_condWaitJobsDone, &s_lockWaitJobsDone);
+        pthread_mutex_lock(&s_lockWaitJobsDone);
+        if(s_numRemainingJobs == 0)
+        {
+            pthread_mutex_unlock(&s_lockWaitJobsDone);
+            break;
+        }
+        pthread_mutex_unlock(&s_lockWaitJobsDone);
+        gettimeofday(&t1, NULL);
+        timersub(&t1, &t0, &dt);
+        double totTime = (1e+6 *  (double)dt.tv_sec +  (double)dt.tv_usec)/(double)1;
+        if(totTime > 1e+6 * timeout)
+        {
+            return RPC_FAILURE;
+        }
     }
-    pthread_mutex_unlock(&s_lockWaitJobsDone);
+    return RPC_SUCCESS;
 }
+
 /*  Function to destroy the master and working threads.
  *  It should be called only after the host finished all jobs.
  * */
