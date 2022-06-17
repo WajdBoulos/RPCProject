@@ -3,7 +3,7 @@
 #include "queue.h"
 #include "RPCDevice.h"
 
-#define THREAD_NUM 8
+#define THREAD_NUM 4
 
 static uint32_t s_packetId = 0;
 
@@ -33,9 +33,11 @@ static void _PerformFunction(int funcId, void *args)
 }
 
 
-static int _SendPacket(RPC_Packet *packet){
+static int _SendPacket(RPC_Packet *packet)
+{
     int n = sendto(s_listenFd, (const char*) packet, sizeof(int32_t) * 5 + packet->outStructSize, 0, (SA *) &s_clientAddr, s_clientLen);
-    if (n < 0) {
+    if (n < 0)
+    {
         unix_error("Open_clientfd Unix error");
     }
     return 1;
@@ -43,7 +45,8 @@ static int _SendPacket(RPC_Packet *packet){
 
 static void* _CallBackHandler()
 {
-    while(1) {
+    while(1)
+    {
         pthread_mutex_lock(&s_lockWait);
         while(getQueueSize(s_requests) == 0)
         {
@@ -63,11 +66,13 @@ static void* _CallBackHandler()
 static void* _RecieveHandler()
 {
     RPC_Packet * packet;
-    while(1) {
+    while(1)
+    {
         recvfrom(s_listenFd, s_buf, MAXBUF, 0, (SA *)&s_clientAddr, (socklen_t *) &s_clientLen);
         packet = (RPC_Packet*)s_buf;
         pthread_mutex_lock(&s_lockWait);
-        if (getQueueSize(s_requests) >= s_queueSize) {
+        if (getQueueSize(s_requests) >= s_queueSize)
+        {
             pthread_cond_wait(&s_condWaitBlock, &s_lockWait);
         }
         s_packetId++;
@@ -83,7 +88,8 @@ static void _InitThreadPool()
     pthread_cond_init(&s_condWaitBlock, NULL);
 
     pthread_cond_init(&s_condWait, NULL);
-    if ((pthread_mutex_init(&s_lockWait, NULL) != 0) ){
+    if ((pthread_mutex_init(&s_lockWait, NULL) != 0) )
+    {
         exit(1);
     }
     s_requests = makeQueue();
@@ -96,10 +102,12 @@ static void _InitThreadPool()
     pthread_create(&(threads[THREAD_NUM]), NULL, &_RecieveHandler, NULL);
 }
 
-static void _Comm_Init(int port){
+static void _Comm_Init(int port)
+{
     struct sockaddr_in serveraddr;
     s_listenFd = socket(AF_INET, SOCK_DGRAM, 0);
-    if(s_listenFd < 0){
+    if(s_listenFd < 0)
+    {
         unix_error("Open_listenfd Unix error");
         exit(1);
     }
@@ -108,7 +116,8 @@ static void _Comm_Init(int port){
     serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
     serveraddr.sin_port = htons((unsigned short)port);
     if (bind(s_listenFd, (struct sockaddr *) &serveraddr,
-             sizeof(serveraddr)) < 0){
+             sizeof(serveraddr)) < 0)
+    {
         unix_error("Open_listenfd Unix error");
         exit(1);
     }

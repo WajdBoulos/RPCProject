@@ -17,12 +17,6 @@ extern "C" {
 #include <pthread.h>
 #include <string.h>
 
-typedef enum
-{
-    CALL_FUNCTION,
-    CALLBACK,
-} RPC_Command;
-
 typedef struct
 {
     uint32_t funcId;

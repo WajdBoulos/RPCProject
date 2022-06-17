@@ -11,13 +11,13 @@ struct Queue
 
 queue makeQueue()
 {
-      queue new_queue = malloc(sizeof(*new_queue));
-      new_queue->size = 0;
-      struct timeval arrival;
-     new_queue->head = makeNode(NULL,-1);
-     new_queue->end = makeNode(NULL,-2);
-     specialConnect(new_queue->head,new_queue->end);
-     return new_queue;
+    queue newQueue = malloc(sizeof(*newQueue));
+    newQueue->size = 0;
+    struct timeval arrival;
+    newQueue->head = makeNode(NULL,-1);
+    newQueue->end = makeNode(NULL,-2);
+    specialConnect(newQueue->head,newQueue->end);
+    return newQueue;
 }
 
 int getQueueSize(queue q)
@@ -26,23 +26,23 @@ int getQueueSize(queue q)
 }
 bool addToQueue(queue q,RPC_Packet *request)
 {
-    node new_nod = makeNode(request,0);
+    node newNode= makeNode(request,0);
     
-    connectNode(q->end,new_nod);
+    connectNode(q->end,newNode);
     q->size = q->size+1;
     return 1;
 }
 void popFromQueue(queue q)
 {
-    node new_node = getNext(q->head);
-    disconnectNode(new_node);
+    node newNode = getNext(q->head);
+    disconnectNode(newNode);
     q->size = q->size-1;
 }
 
-void killQueue(queue to_kill)
+void killQueue(queue toKill)
 {
-    deleteall(to_kill->head);
-    free(to_kill);
+    deleteall(toKill->head);
+    free(toKill);
 }
 
 node front(queue q)

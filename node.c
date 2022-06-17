@@ -11,15 +11,14 @@ struct Node
 
 node makeNode(RPC_Packet *packet, int index)
 {
-    node new_node = malloc(sizeof(*new_node));
-  //  new_node->packet = malloc(sizeof(*packet));
+    node newNode = malloc(sizeof(*newNode));
+  //  newNode->packet = malloc(sizeof(*packet));
     if(packet)
-    memcpy(&new_node->packet, packet, sizeof(RPC_Packet));
-    new_node->next = NULL;
-    new_node->previous = NULL;
-    new_node->head = index;
-    return new_node;
-
+    memcpy(&newNode->packet, packet, sizeof(RPC_Packet));
+    newNode->next = NULL;
+    newNode->previous = NULL;
+    newNode->head = index;
+    return newNode;
 }
 
 void specialConnect(node start,node end)
@@ -30,27 +29,27 @@ void specialConnect(node start,node end)
 
 void connectNode(node end,node connecting)
 {
-    node tmp_node = end->previous;
-    tmp_node->next = connecting;
-    connecting ->previous = tmp_node;
+    node tmpNode = end->previous;
+    tmpNode->next = connecting;
+    connecting ->previous = tmpNode;
     connecting->next = end;
     end->previous = connecting;
 }
 
 void disconnectNode(node to_disconnect)
 {
-   node tmp_node = to_disconnect->next;
-   node tmp_node2 = to_disconnect->previous;
-   tmp_node->previous = tmp_node2;
-   tmp_node2->next = tmp_node;
+   node tmpNode = to_disconnect->next;
+   node tmpNode2 = to_disconnect->previous;
+   tmpNode->previous = tmpNode2;
+   tmpNode2->next = tmpNode;
    destroyNode(to_disconnect);
 }
 
-void destroyNode(node to_destroy)
+void destroyNode(node toDestroy)
 {
-    to_destroy->next = NULL;
-    to_destroy->previous = NULL;
-    free(to_destroy);
+    toDestroy->next = NULL;
+    toDestroy->previous = NULL;
+    free(toDestroy);
 }
 
 void deleteall(node start)

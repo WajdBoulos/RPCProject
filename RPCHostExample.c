@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     struct timeval t0, t1, dt;
     gettimeofday(&t0, NULL);
 
-    const int numEmptyJobs = 1000;
+    const int numEmptyJobs = 100000;
     for(int i = 0; i < numEmptyJobs; i++)
     {
         RPC_CallFunction(1, 2, NULL, 0, 0);

@@ -5,6 +5,10 @@
 #include <unistd.h>
 
 #define THREAD_NUM 4
+#define MAX_WINDOW_SIZE 100
+#define WINDOW_UNLOCK_SIZE 50
+#define SEND_PACKET_TIMEOUT 10e+6
+
 /* barrier definitions */
 static pthread_mutex_t s_lockWaitJobsDone;
 static pthread_cond_t s_condWaitJobsDone;
@@ -41,7 +45,8 @@ static void _PerformFunction(int funcId, void *args)
 
 /*
  * */
-static RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn){
+static RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn)
+{
     s_serverLen = sizeof(s_serverAddr);
     int n = sendto(s_sockFd, (const char*) packetIn, sizeof(int32_t)*5+packetIn->inStructSize, 0,
                    (const struct sockaddr *) &s_serverAddr, s_serverLen);
@@ -49,21 +54,32 @@ static RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn){
         unix_error("Open_clientfd Unix error");
         return RPC_FAILURE;
     }
+
     pthread_mutex_lock(&s_lockWaitJobsDone);
     s_numRemainingJobs++;
     int remainJobs = s_numRemainingJobs;
     pthread_mutex_unlock(&s_lockWaitJobsDone);
-    if(remainJobs > 100)
+
+    struct timeval t0, t1, dt;
+    gettimeofday(&t0, NULL);
+    if(remainJobs > MAX_WINDOW_SIZE)
     {
         while (1)
         {
             pthread_mutex_lock(&s_lockWaitJobsDone);
-            if (s_numRemainingJobs < 50)
+            if (s_numRemainingJobs < WINDOW_UNLOCK_SIZE)
             {
                 pthread_mutex_unlock(&s_lockWaitJobsDone);
                 break;
             }
             pthread_mutex_unlock(&s_lockWaitJobsDone);
+            gettimeofday(&t1, NULL);
+            timersub(&t1, &t0, &dt);
+            double totTime = (1e+6 *  (double)dt.tv_sec +  (double)dt.tv_usec)/(double)1;
+            if(totTime > SEND_PACKET_TIMEOUT)
+            {
+                return RPC_FAILURE;
+            }
         }
     }
     return RPC_SUCCESS;
@@ -94,11 +110,13 @@ static void* _CallBackHandler()
 static void* _RecieveHandler()
 {
     RPC_Packet * packet;
-    while(1) {
+    while(1)
+    {
         recvfrom(s_sockFd, s_buf, sizeof(s_buf), 0, (struct sockaddr *) NULL, NULL);
         packet = (RPC_Packet*)s_buf;
         pthread_mutex_lock(&s_lockWaitJobs);
-        if (getQueueSize(s_jobs) >= s_queueSize) {
+        if (getQueueSize(s_jobs) >= s_queueSize)
+        {
             pthread_cond_wait(&s_condWaitBlockJobs, &s_lockWaitJobs);
         }
         addToQueue(s_jobs, packet);
@@ -112,11 +130,13 @@ static RPC_ReturnStatus _InitThreadPool()
 {
     pthread_cond_init(&s_condWaitBlockJobs, NULL);
     pthread_cond_init(&s_condWaitToJobs, NULL);
-    if ((pthread_mutex_init(&s_lockWaitJobs, NULL) != 0) ){
+    if ((pthread_mutex_init(&s_lockWaitJobs, NULL) != 0) )
+    {
         return RPC_FAILURE;
     }
     pthread_cond_init(&s_condWaitJobsDone, NULL);
-    if ((pthread_mutex_init(&s_lockWaitJobsDone, NULL) != 0) ){
+    if ((pthread_mutex_init(&s_lockWaitJobsDone, NULL) != 0) )
+    {
         return RPC_FAILURE;
     }
     s_jobs = makeQueue();
@@ -128,7 +148,8 @@ static RPC_ReturnStatus _InitThreadPool()
     return RPC_SUCCESS;
 }
 
-static RPC_ReturnStatus _Comm_Init(int portno, char* hostname){
+static RPC_ReturnStatus _Comm_Init(int portno, char* hostname)
+{
     struct hostent* server;
     /* socket: create the socket */
     s_sockFd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -151,7 +172,7 @@ static RPC_ReturnStatus _Comm_Init(int portno, char* hostname){
     return RPC_SUCCESS;
 }
 
-static inline RPC_Packet _CreatePacket(int command, int funcId, int callBackId, void *args, int argSize, int retSize) {
+static inline RPC_Packet _CreatePacket(int funcId, int callBackId, void *args, int argSize, int retSize) {
     RPC_Packet packet;
     packet.funcId = funcId;
     packet.callBackId = callBackId;
@@ -182,14 +203,11 @@ RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int in
     {
         return RPC_FAILURE;
     }
-    RPC_Packet packet = _CreatePacket(CALL_FUNCTION, funcId, callBackId, args, inStructSize, outStructSize);
+    RPC_Packet packet = _CreatePacket(funcId, callBackId, args, inStructSize, outStructSize);
     RPC_ReturnStatus rc = _SendPacket(&packet);
     return rc;
 }
 
-/*  Function to set a barrier,
- *  The barrier waits to all sent packets to be done.
- * */
 RPC_ReturnStatus RPC_Barrier(double timeout)
 {
     struct timeval t0, t1, dt;
@@ -215,9 +233,6 @@ RPC_ReturnStatus RPC_Barrier(double timeout)
     return RPC_SUCCESS;
 }
 
-/*  Function to destroy the master and working threads.
- *  It should be called only after the host finished all jobs.
- * */
 void RPC_Destroy()
 {
     for(int i = 0; i < THREAD_NUM + 1; i++)
