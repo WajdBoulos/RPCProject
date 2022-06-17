@@ -6,8 +6,8 @@
 
 #define THREAD_NUM 4
 #define MAX_WINDOW_SIZE 100
-#define WINDOW_UNLOCK_SIZE 50
-#define SEND_PACKET_TIMEOUT 10e+6
+#define WINDOW_UNLOCK_SIZE (MAX_WINDOW_SIZE/2)
+#define SEND_PACKET_TIMEOUT 10
 
 /* barrier definitions */
 static pthread_mutex_t s_lockWaitJobsDone;
@@ -76,7 +76,7 @@ static RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn)
             gettimeofday(&t1, NULL);
             timersub(&t1, &t0, &dt);
             double totTime = (1e+6 *  (double)dt.tv_sec +  (double)dt.tv_usec)/(double)1;
-            if(totTime > SEND_PACKET_TIMEOUT)
+            if(totTime > 1e+6 * SEND_PACKET_TIMEOUT) // return error if passes SEND_PACKET_TIMEOUT seonds and WINDOW_UNLOCK_SIZE jobs havent been finished
             {
                 return RPC_FAILURE;
             }
@@ -208,7 +208,7 @@ RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int in
     return rc;
 }
 
-RPC_ReturnStatus RPC_Barrier(double timeout)
+RPC_ReturnStatus RPC_Barrier(double timeoutSecs)
 {
     struct timeval t0, t1, dt;
     gettimeofday(&t0, NULL);
@@ -225,7 +225,7 @@ RPC_ReturnStatus RPC_Barrier(double timeout)
         gettimeofday(&t1, NULL);
         timersub(&t1, &t0, &dt);
         double totTime = (1e+6 *  (double)dt.tv_sec +  (double)dt.tv_usec)/(double)1;
-        if(totTime > 1e+6 * timeout)
+        if(totTime > 1e+6 * timeoutSecs)
         {
             return RPC_FAILURE;
         }
