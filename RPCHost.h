@@ -48,7 +48,7 @@ RPC_ReturnStatus RPC_CallFunction(int funcId, int callBackId, void *args, int in
 
 /**
  * Blocks until all unfinished jobs are finished, can be thought of like a 'job synchronization'. If waited more than timeout, the function quits and returns failure..
- * Example cases hen we can reach a timeout failure: Packet loss, One of the jobs got stuck (in the host or device), The device died
+ * Example cases where we can reach a timeout failure: Packet loss, One of the jobs got stuck (in the host or device), The device died
  *
  * @param timeoutSecs the function quits if timeout was exceeded, indicating failure. Time units are in seconds.
  * @return returns RPC_SUCCESS once all remaining jobs finished in timee, RPC_FAILURE if we reached timeout (we have job-loss)

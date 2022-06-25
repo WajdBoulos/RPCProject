@@ -48,7 +48,7 @@ static void _PerformFunction(int funcId, void *args)
 static RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn)
 {
     s_serverLen = sizeof(s_serverAddr);
-    int n = sendto(s_sockFd, (const char*) packetIn, sizeof(int32_t)*5+packetIn->inStructSize, 0,
+    int n = sendto(s_sockFd, (const char*) packetIn, sizeof(int32_t) * 5 + packetIn->inStructSize, 0,
                    (const struct sockaddr *) &s_serverAddr, s_serverLen);
     if (n < 0) {
         unix_error("Open_clientfd Unix error");
