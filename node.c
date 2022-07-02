@@ -82,7 +82,7 @@ node getPrevious(node nd)
     return nd->previous;
 }
 
-RPC_Packet *getRequest(node nd)
+RPC_Packet *getPacket(node nd)
 {
     return &nd->packet;
 }

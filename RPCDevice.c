@@ -53,7 +53,7 @@ static void* _CallBackHandler()
             pthread_cond_wait(&s_condWait, &s_lockWait);
         }
         RPC_Packet rpcPacket1;
-        memcpy(&rpcPacket1, getRequest(front(s_requests)), sizeof (RPC_Packet));
+        memcpy(&rpcPacket1, getPacket(front(s_requests)), sizeof (RPC_Packet));
         popFromQueue(s_requests);
         pthread_mutex_unlock(&s_lockWait);
         _PerformFunction(rpcPacket1.funcId, rpcPacket1.argBuf);

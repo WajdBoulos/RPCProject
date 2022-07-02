@@ -93,7 +93,7 @@ static void* _CallBackHandler()
         {
             pthread_cond_wait(&s_condWaitToJobs, &s_lockWaitJobs);
         }
-        RPC_Packet *rpcPacket1 =  getRequest(front(s_jobs));
+        RPC_Packet *rpcPacket1 = getPacket(front(s_jobs));
         _PerformFunction(rpcPacket1->callBackId, rpcPacket1->argBuf);
         popFromQueue(s_jobs);
         pthread_mutex_lock(&s_lockWaitJobsDone);

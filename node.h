@@ -19,7 +19,7 @@ void destroyNode(node to_destroy);// free node resorcess
 void deleteall(node start);// kill all connected nodes 
 node getNext(node nd);// return the next value of a node 
 node getPrevious(node nd);//return the previous value of a node 
-RPC_Packet * getRequest(node nd);//get request from node
+RPC_Packet * getPacket(node nd);//get request from node
 
 #ifdef __cplusplus
 }

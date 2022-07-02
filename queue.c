@@ -60,7 +60,7 @@ void popFromQueueByInt(queue q,int packetId)
 {
     node temp = getNext(q->head);
 
-    while(getRequest(temp)->packetId != packetId)
+    while(getPacket(temp)->packetId != packetId)
     {
         temp = getNext(temp);
     }
