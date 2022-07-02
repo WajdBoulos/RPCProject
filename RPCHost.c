@@ -84,7 +84,7 @@ static RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn)
     return RPC_SUCCESS;
 }
 
-static void* _CallBackHandler()
+static void* _WorkerHandler()
 {
     while(1) {
         pthread_mutex_lock(&s_lockWaitJobs);
@@ -105,7 +105,7 @@ static void* _CallBackHandler()
 }
 
 
-static void* _RecieveHandler()
+static void* _MasterHandler()
 {
     RPC_Packet * packet;
     while(1)
@@ -139,9 +139,9 @@ static RPC_ReturnStatus _InitThreadPool()
     s_jobs = makeQueue();
     for(int i = 0 ; i < THREAD_NUM; i++)
     {
-        pthread_create(&(s_threads[i]), NULL, &_CallBackHandler, NULL);
+        pthread_create(&(s_threads[i]), NULL, &_WorkerHandler, NULL);
     }
-    pthread_create(&(s_threads[THREAD_NUM]), NULL, &_RecieveHandler, NULL);
+    pthread_create(&(s_threads[THREAD_NUM]), NULL, &_MasterHandler, NULL);
     return RPC_SUCCESS;
 }
 

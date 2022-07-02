@@ -43,7 +43,7 @@ static int _SendPacket(RPC_Packet *packet)
     return 1;
 }
 
-static void* _CallBackHandler()
+static void* _WorkerHandler()
 {
     while(1)
     {
@@ -63,7 +63,7 @@ static void* _CallBackHandler()
     return NULL;
 }
 
-static void* _RecieveHandler()
+static void* _MasterHandler()
 {
     RPC_Packet * packet;
     while(1)
@@ -96,10 +96,10 @@ static void _InitThreadPool()
     pthread_t* threads = s_threads;
     for(int i = 0 ; i < THREAD_NUM; i++)
     {
-        pthread_create(&(threads[i]), NULL, &_CallBackHandler, NULL);
+        pthread_create(&(threads[i]), NULL, &_WorkerHandler, NULL);
     }
 
-    pthread_create(&(threads[THREAD_NUM]), NULL, &_RecieveHandler, NULL);
+    pthread_create(&(threads[THREAD_NUM]), NULL, &_MasterHandler, NULL);
 }
 
 static void _Comm_Init(int port)
