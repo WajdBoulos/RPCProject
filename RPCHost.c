@@ -11,7 +11,6 @@
 
 /* barrier definitions */
 static pthread_mutex_t s_lockWaitJobsDone;
-static pthread_cond_t s_condWaitJobsDone;
 static int s_numRemainingJobs = 0;
 
 /* server connection */
@@ -99,7 +98,6 @@ static void* _CallBackHandler()
         pthread_mutex_lock(&s_lockWaitJobsDone);
         s_numRemainingJobs--;
         pthread_mutex_unlock(&s_lockWaitJobsDone);
-        pthread_cond_signal(&s_condWaitJobsDone);
         pthread_mutex_unlock(&s_lockWaitJobs);
         pthread_cond_signal(&s_condWaitBlockJobs);
     }
@@ -134,7 +132,6 @@ static RPC_ReturnStatus _InitThreadPool()
     {
         return RPC_FAILURE;
     }
-    pthread_cond_init(&s_condWaitJobsDone, NULL);
     if ((pthread_mutex_init(&s_lockWaitJobsDone, NULL) != 0) )
     {
         return RPC_FAILURE;
