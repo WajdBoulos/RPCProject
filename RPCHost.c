@@ -11,7 +11,6 @@
 
 /* barrier definitions */
 static pthread_mutex_t s_lockWaitJobsDone;
-static pthread_cond_t s_condWaitJobsDone;
 static int s_numRemainingJobs = 0;
 
 /* server connection */
@@ -48,7 +47,7 @@ static void _PerformFunction(int funcId, void *args)
 static RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn)
 {
     s_serverLen = sizeof(s_serverAddr);
-    int n = sendto(s_sockFd, (const char*) packetIn, sizeof(int32_t)*5+packetIn->inStructSize, 0,
+    int n = sendto(s_sockFd, (const char*) packetIn, sizeof(int32_t) * 5 + packetIn->inStructSize, 0,
                    (const struct sockaddr *) &s_serverAddr, s_serverLen);
     if (n < 0) {
         unix_error("Open_clientfd Unix error");
@@ -85,7 +84,7 @@ static RPC_ReturnStatus _SendPacket(RPC_Packet *packetIn)
     return RPC_SUCCESS;
 }
 
-static void* _CallBackHandler()
+static void* _WorkerHandler()
 {
     while(1) {
         pthread_mutex_lock(&s_lockWaitJobs);
@@ -99,7 +98,6 @@ static void* _CallBackHandler()
         pthread_mutex_lock(&s_lockWaitJobsDone);
         s_numRemainingJobs--;
         pthread_mutex_unlock(&s_lockWaitJobsDone);
-        pthread_cond_signal(&s_condWaitJobsDone);
         pthread_mutex_unlock(&s_lockWaitJobs);
         pthread_cond_signal(&s_condWaitBlockJobs);
     }
@@ -107,7 +105,7 @@ static void* _CallBackHandler()
 }
 
 
-static void* _RecieveHandler()
+static void* _MasterHandler()
 {
     RPC_Packet * packet;
     while(1)
@@ -134,7 +132,6 @@ static RPC_ReturnStatus _InitThreadPool()
     {
         return RPC_FAILURE;
     }
-    pthread_cond_init(&s_condWaitJobsDone, NULL);
     if ((pthread_mutex_init(&s_lockWaitJobsDone, NULL) != 0) )
     {
         return RPC_FAILURE;
@@ -142,9 +139,9 @@ static RPC_ReturnStatus _InitThreadPool()
     s_jobs = makeQueue();
     for(int i = 0 ; i < THREAD_NUM; i++)
     {
-        pthread_create(&(s_threads[i]), NULL, &_CallBackHandler, NULL);
+        pthread_create(&(s_threads[i]), NULL, &_WorkerHandler, NULL);
     }
-    pthread_create(&(s_threads[THREAD_NUM]), NULL, &_RecieveHandler, NULL);
+    pthread_create(&(s_threads[THREAD_NUM]), NULL, &_MasterHandler, NULL);
     return RPC_SUCCESS;
 }
 
