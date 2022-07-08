@@ -1,6 +1,6 @@
-#include "../RPCCommon.h"
+#include "RPCCommon.h"
 #include "stdbool.h"
-#include "../queue.h"
+#include "queue.h"
 #include "RPCDevice.h"
 
 #define THREAD_NUM 4

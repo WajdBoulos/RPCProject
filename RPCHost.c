@@ -1,5 +1,5 @@
-#include "../RPCCommon.h"
-#include "../queue.h"
+#include "RPCCommon.h"
+#include "queue.h"
 #include "RPCHost.h"
 #include <time.h>
 #include <unistd.h>
