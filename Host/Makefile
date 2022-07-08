@@ -2,8 +2,8 @@
 # To compile, type "make" or make "all"
 # To remove files, type "make clean"
 #
-OBJS = RPCDevice.o RPCDeviceExample.o node.o queue.o
-TARGET = RPCDevice
+OBJS = RPCHost.o RPCHostExample.o node.o queue.o
+TARGET = RPCHost
 
 CC = gcc
 CFLAGS = -g -Wall
@@ -12,10 +12,10 @@ LIBS = -lpthread
 
 .SUFFIXES: .c .o 
 
-all: RPCDevice
+all: RPCHost
 
-RPCDevice: RPCDeviceExample.o RPCDevice.o queue.o node.o
-	$(CC) $(CFLAGS) -o RPCDevice RPCDeviceExample.o RPCDevice.o queue.o node.o $(LIBS)
+RPCDevice: RPCHostExample.o RPCHost.o queue.o node.o
+	$(CC) $(CFLAGS) -o RPCHost RPCHostExample.o RPCHost.o queue.o node.o $(LIBS)
 .c.o:
 	$(CC) $(CFLAGS) -o $@ -c $<
 .node.o: node.o

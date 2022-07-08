@@ -7,11 +7,11 @@ add_compile_options(
 )
 
 add_executable(RPCHostExample
-        RPCHostExample.c
+        Host/RPCHostExample.c
         )
 
 add_executable(RPCDeviceExample
-        RPCDeviceExample.c
+        Device/RPCDeviceExample.c
         )
 
 target_link_libraries(RPCHostExample RPCHostLib)
@@ -20,13 +20,13 @@ target_link_libraries(RPCDeviceExample RPCDeviceLib)
 add_library(RPCHostLib
         node.c
         queue.c
-        RPCHost.c)
+        Host/RPCHost.c)
 
 target_link_libraries(RPCHostExample pthread)
 
 add_library(RPCDeviceLib
         node.c
         queue.c
-        RPCDevice.c)
+        Device/RPCDevice.c)
 
 target_link_libraries(RPCDeviceExample pthread)
