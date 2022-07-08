@@ -14,8 +14,8 @@ LIBS = -lpthread
 
 all: RPCDevice
 
-RPCDevice: RPCDeviceExample.o RPCDevice.o RPCCommon.o queue.o node.o
-	$(CC) $(CFLAGS) -o RPCDevice RPCDeviceExample.o RPCDevice.o RPCCommon.o queue.o node.o $(LIBS)
+RPCDevice: RPCDeviceExample.o RPCDevice.o queue.o node.o
+	$(CC) $(CFLAGS) -o RPCDevice RPCDeviceExample.o RPCDevice.o queue.o node.o $(LIBS)
 .c.o:
 	$(CC) $(CFLAGS) -o $@ -c $<
 .node.o: node.o
