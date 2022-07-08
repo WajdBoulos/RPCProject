@@ -13,7 +13,6 @@ queue makeQueue()
 {
     queue newQueue = malloc(sizeof(*newQueue));
     newQueue->size = 0;
-    struct timeval arrival;
     newQueue->head = makeNode(NULL,-1);
     newQueue->end = makeNode(NULL,-2);
     specialConnect(newQueue->head,newQueue->end);
