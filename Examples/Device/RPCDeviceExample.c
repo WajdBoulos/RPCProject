@@ -2,7 +2,7 @@
 // Created by user on 5/28/22.
 //
 
-#include "RPCDevice.h"
+#include "../../DeviceLib/RPCDevice.h"
 
 #include <stdio.h>
 #include <stdlib.h>

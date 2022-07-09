@@ -1,4 +1,4 @@
-#include "RPCHost.h"
+#include "../../HostLib/RPCHost.h"
 
 #include <stdio.h>
 #include <stdlib.h>
