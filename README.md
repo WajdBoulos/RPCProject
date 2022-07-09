@@ -5,6 +5,10 @@ The project contains 4 targets:
 3. RPCHostExample
 4. RPCDeviceExample
 
+# Integarting into your project
+To use the Host/Device library all you need to do is include RPCHost.h/RPCDevice.h and link with RPCHostLib/RPCDeviceLib
+
+# Building
 Build system is CMAKE (Which generates makefile files)
 You can build in 2 different ways:
 1. You can use Clion (which uses cmake by default) and generates the targets by default
